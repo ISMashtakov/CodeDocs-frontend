@@ -43,7 +43,7 @@ function PasswordField({style}) {
 
 function SignUpTab() {
     return(
-        <div style={{...tab_panel_style}}>
+        <div style={{...tab_panel_style}} id={"sign_SignPage_SignUpTab_div"}>
             <div style={{height: 15}}/>
             <div style={{...text_field_text_style}}>Username</div>
             <Input disableUnderline style={{...text_field_style}} />
@@ -58,7 +58,7 @@ function SignUpTab() {
 
 function SignInTab() {
     return(
-        <div style={{...tab_panel_style}}>
+        <div style={{...tab_panel_style}} id={"sign_SignPage_SignInTab_div"}>
             <div style={{height: 15}}/>
             <div style={{...text_field_text_style}}>Username or E-mail</div>
             <Input disableUnderline style={{...text_field_style}} />
@@ -76,8 +76,8 @@ function SignTabs() {
     return (
         <div >
             <Tabs value={value} onChange={(_, newValue)=>setValue(newValue)} TabIndicatorProps={{hidden: true}} style={{width:tab_width*2, borderRadius: "7px", marginLeft: "auto", marginRight: "auto", height: tab_height+15}}>
-                <Tab label="SIGN UP" style={{...(value===0? select_tab_style : tab_style), boxShadow: (value!==0? "-1px 1px 5px 1px rgba(0,0,0,0.3)" : "none"), borderRadius: "7px 0 0 0",}}/>
-                <Tab label="SIGN IN" style={{...(value===1? select_tab_style : tab_style), boxShadow: (value!==1? "1px 1px 5px 1px rgba(0,0,0,0.3)" : "none"), borderRadius: "0 7px 0 0",}}/>
+                <Tab id={"sign_SignPage_SignTabs_TabSingUp"} label="SIGN UP" style={{...(value===0? select_tab_style : tab_style), boxShadow: (value!==0? "-1px 1px 5px 1px rgba(0,0,0,0.3)" : "none"), borderRadius: "7px 0 0 0",}}/>
+                <Tab id={"sign_SignPage_SignTabs_TabSingIn"} label="SIGN IN" style={{...(value===1? select_tab_style : tab_style), boxShadow: (value!==1? "1px 1px 5px 1px rgba(0,0,0,0.3)" : "none"), borderRadius: "0 7px 0 0",}}/>
             </Tabs>
             {(value === 0) ? <SignUpTab/> : <SignInTab/>}
         </div>
