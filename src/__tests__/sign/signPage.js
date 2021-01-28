@@ -27,7 +27,7 @@ it("renders after swap tab", () => {
       render(<SignPage store={store}/>, container);
     });
 
-    expect(document.getElementById("sign_Sign_SignUpTab_div")).not.toBeNull()
+    expect(document.getElementById("sign_SignPage_SignUpTab_div")).not.toBeNull()
     expect(document.getElementById("sign_SignPage_SignInTab_div")).toBeNull()
 
     const sign_in_tab = document.getElementById("sign_SignPage_SignTabs_TabSingIn")
@@ -36,7 +36,7 @@ it("renders after swap tab", () => {
         sign_in_tab.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
 
-    expect(document.getElementById("sign_InTab_div")).not.toBeNull()
+    expect(document.getElementById("sign_SignPage_SignInTab_div")).not.toBeNull()
     expect(document.getElementById("sign_SignPage_SignUpTab_div")).toBeNull()
 
     const sign_up_tab = document.getElementById("sign_SignPage_SignTabs_TabSingUp")
@@ -46,6 +46,6 @@ it("renders after swap tab", () => {
     });
 
     expect(document.getElementById("sign_SignPage_SignUpTab_div")).not.toBeNull()
-    expect(document.getElementById("sign_SignPanInTab_div")).toBeNull()
+    expect(document.getElementById("sign_SignPage_SignInTab_div")).toBeNull()
 
   });
