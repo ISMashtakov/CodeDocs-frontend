@@ -29,8 +29,6 @@ jobs:
         run: |
           sudo apt install nodejs
           sudo apt install npm
-      - name: ls
-        run: ls
         
       - name: install packages
         run: sudo npm install
