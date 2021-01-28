@@ -27,11 +27,11 @@ jobs:
 
       - name: install nodejs and npm 
         run: |
-          apt install nodejs
-          apt install npm
+          sudo apt install nodejs
+          sudo apt install npm
 
       - name: install packages
-        run: npm install
+        run: sudo npm install
       
       - name: run tests
         run: npm test
