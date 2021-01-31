@@ -1,5 +1,9 @@
-export const color1 = "#E03616";
-export const color2 = "#FFFFFF";
-export const color3 = "#3F334D";
-export const color4 = "#7D8491";
-export const color5 = "#EFF0F2";
+const COLORS = {
+  ORANGE: '#E03616',
+  WHITE: '#FFFFFF',
+  VIOLET: '#3F334D',
+  GREY: '#7D8491',
+  LIGHT_GREY: '#EFF0F2',
+};
+
+export default COLORS;

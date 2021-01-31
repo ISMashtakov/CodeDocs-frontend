@@ -1,11 +1,11 @@
-import {combineReducers} from 'redux';
+import { combineReducers } from 'redux';
 
 import signData from '../sign/reducer';
 
 const rootReducer = combineReducers(
-    {
-    signData: signData
-    }
-    );
+  {
+    signData,
+  },
+);
 
 export default rootReducer;

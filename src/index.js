@@ -7,7 +7,7 @@ import SignPage from './sign/SignPage';
 
 ReactDOM.render(
   <Provider store={store}>
-    <SignPage/>
+    <SignPage />
   </Provider>,
-  document.getElementById('root')
+  document.getElementById('root'),
 );
