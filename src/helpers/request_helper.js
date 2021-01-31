@@ -11,7 +11,7 @@ function getParams(data) {
   return params;
 }
 
-export async function post(url = '', data = {}) {
+export async function post(url, data = {}) {
   const params = getParams(data);
   const response = await fetch(url, {
     method: 'POST',
@@ -23,7 +23,7 @@ export async function post(url = '', data = {}) {
   return response;
 }
 
-export async function get(url = '', data = {}) {
+export async function get(url, data = {}) {
   const params = getParams(data);
   const response = await fetch(`${url}?${params}`);
   return response;
