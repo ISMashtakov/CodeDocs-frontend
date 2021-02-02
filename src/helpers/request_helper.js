@@ -5,7 +5,7 @@ function getParams(data) {
   });
 
   if (params.endsWith('&')) {
-    params = params.slice(0, -1);
+    return params.slice(0, -1);
   }
 
   return params;
