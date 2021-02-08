@@ -8,9 +8,9 @@ const composeEnhancers = process.env.NODE_ENV !== 'production'
   ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({}) : compose;
 /* eslint-enable */
 
-const configureStore = (preloadedState) => {
+const configureStore = (preloadedState) => 
   (createStore(rootReducer, preloadedState, composeEnhancers()));
-};
+
 
 const store = configureStore({});
 
