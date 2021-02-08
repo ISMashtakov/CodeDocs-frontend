@@ -12,6 +12,8 @@ import IconButton from '@material-ui/core/IconButton';
 import signBackground from '../images/signBackground.png';
 import logo from '../images/logo.png';
 import COLORS from '../style/colors';
+import authApi from '../helpers/auth_helper';
+
 
 const TAB_WIDTH = 205;
 const TAB_HEIGHT = 50;
@@ -34,13 +36,13 @@ const TAB_PANEL_STYLE = {
   boxShadow: '0px 5px 5px 1px rgba(0,0,0,0.1)', width: TAB_WIDTH * 2, borderRadius: '0 0 7px 7px', display: 'block', marginLeft: 'auto', marginRight: 'auto', position: 'relative', top: -15, border: '1px solid', borderColor: COLORS.LIGHT_GREY,
 };
 
-function PasswordField(props) {
+function PasswordField({style}) {
   const [showPassword, setShowPassword] = React.useState(false);
 
   return (
     <Input
       disableUnderline
-      style={props}
+      style={style}
       type={showPassword ? 'text' : 'password'}
       endAdornment={(
         <InputAdornment position="end">
@@ -55,14 +57,30 @@ function PasswordField(props) {
   );
 }
 
+function TextFieldWithCheck({text, style, checkFunc, textIfExist}) {
+  const [value, setValue] = React.useState("");
+  const [isExist, setIsExist] = React.useState(false);
+  async function checkExisting()
+  {
+    const responce = await checkFunc(value);
+    setIsExist(responce);
+  }
+  return(
+    <div style={style} >
+      <div style={TEXT_FIELD_TEXT_STYLE}>{text}</div>
+      <Input disableUnderline style={TEXT_FIELD_STYLE} value={value} onChange={(event) => setValue(event.target.value)} onBlur={checkExisting}/>
+      <div> {isExist?textIfExist:""}</div>
+    </div>
+  )
+}
+
+
 function SignUpTab() {
   return (
     <div style={TAB_PANEL_STYLE} id="sign_SignPage_SignUpTab_div">
       <div style={{ height: 15 }} />
-      <div style={TEXT_FIELD_TEXT_STYLE}>Username</div>
-      <Input disableUnderline style={TEXT_FIELD_STYLE} />
-      <div style={{ ...TEXT_FIELD_TEXT_STYLE, marginTop: 30 }}>Email address</div>
-      <Input disableUnderline style={TEXT_FIELD_STYLE} />
+      <TextFieldWithCheck text="Username" checkFunc={authApi.checkUsername} textIfExist="username alredy exist" />
+      <TextFieldWithCheck text="Email address" checkFunc={authApi.checkMail} textIfExist="email alredy exist" style={{marginTop: 30}} />
       <div style={{ ...TEXT_FIELD_TEXT_STYLE, marginTop: 30 }}>Password</div>
       <PasswordField style={TEXT_FIELD_STYLE} />
       <Button variant="contained" style={{ ...BUTTON_STYLE, marginTop: 50, marginBottom: 20 }}>SIGN UP</Button>
@@ -70,9 +88,9 @@ function SignUpTab() {
   );
 }
 
-function SignInTab() {
+function LogInTab() {
   return (
-    <div style={TAB_PANEL_STYLE} id="sign_SignPage_SignInTab_div">
+    <div style={TAB_PANEL_STYLE} id="sign_SignPage_LogInTab_div">
       <div style={{ height: 15 }} />
       <div style={TEXT_FIELD_TEXT_STYLE}>Username or E-mail</div>
       <Input disableUnderline style={TEXT_FIELD_STYLE} />
@@ -84,7 +102,7 @@ function SignInTab() {
       >
         <u><a href="#0" style={{ color: COLORS.GREY }}>Forgot password or username?</a></u>
       </div>
-      <Button variant="contained" style={{ ...BUTTON_STYLE, marginTop: 50, marginBottom: 20 }}>SIGN IN</Button>
+      <Button variant="contained" style={{ ...BUTTON_STYLE, marginTop: 50, marginBottom: 20 }}>LOG IN</Button>
     </div>
   );
 }
@@ -102,10 +120,10 @@ function SignTabs() {
           width: TAB_WIDTH * 2, borderRadius: '7px', marginLeft: 'auto', marginRight: 'auto', height: TAB_HEIGHT + 15,
         }}
       >
-        <Tab id="sign_SignPage_SignTabs_TabSingUp" label="SIGN UP" style={{ ...(value === 0 ? SELECT_TAB_STYLE : TAB_STYLE), boxShadow: (value !== 0 ? '-1px 1px 5px 1px rgba(0,0,0,0.3)' : 'none'), borderRadius: '7px 0 0 0' }} />
-        <Tab id="sign_SignPage_SignTabs_TabSingIn" label="SIGN IN" style={{ ...(value === 1 ? SELECT_TAB_STYLE : TAB_STYLE), boxShadow: (value !== 1 ? '1px 1px 5px 1px rgba(0,0,0,0.3)' : 'none'), borderRadius: '0 7px 0 0' }} />
+        <Tab id="sign_SignPage_SignTabs_TabLogIn" label="LOG IN" style={{ ...(value === 0 ? SELECT_TAB_STYLE : TAB_STYLE), boxShadow: (value !== 0 ? '1px 1px 5px 1px rgba(0,0,0,0.3)' : 'none'), borderRadius: '0 7px 0 0' }} />
+        <Tab id="sign_SignPage_SignTabs_TabSignUp" label="SIGN UP" style={{ ...(value === 1 ? SELECT_TAB_STYLE : TAB_STYLE), boxShadow: (value !== 1 ? '-1px 1px 5px 1px rgba(0,0,0,0.3)' : 'none'), borderRadius: '7px 0 0 0' }} />
       </Tabs>
-      {(value === 0) ? <SignUpTab /> : <SignInTab />}
+      {(value === 1) ? <SignUpTab /> : <LogInTab />}
     </div>
   );
 }
