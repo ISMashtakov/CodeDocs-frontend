@@ -1,18 +1,19 @@
-import { TASK_SELECT_TAB } from './actions';
-
+import { TASK_SET_TEXT } from './actions';
+import User from '../helpers/user';
 
 function getStartState() {
   return {
-    selectedTab: 0
+    user: new User(),
+    text: ""
   };
 }
 
 const START_STATE = getStartState();
 
-export default function signData(state = START_STATE, action) {
+export default function documentData(state = START_STATE, action) {
   switch (action.type) {
-    case TASK_SELECT_TAB:
-      return {...state, selectedTab: action.tabId}
+    case TASK_SET_TEXT:
+      return {...state, text: action.text}
     default:
       return state;
   }
