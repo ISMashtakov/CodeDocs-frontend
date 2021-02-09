@@ -5,11 +5,17 @@ import { BrowserRouter as Router, Route, Switch, Redirect} from "react-router-do
 
 import store from './redux/store';
 import SignPage from './sign/SignPage';
-import Workspace from './workspace/Workspace';
+import DocumentPage from './workspace/DocumentPage';
 
 function App(){
   return(
   <Provider store={store}>
+    <style>{`
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+    `}</style>
     <Router>
       <Switch>
         <Route path='/login'> 
@@ -19,9 +25,9 @@ function App(){
           <SignPage/>
         </Route>
         <Route path='/workspace'>
-          <SignPage/>
+          <DocumentPage/>
         </Route>
-        <Redirect from='/' to='/login'/>
+        <Redirect from='/' to='/workspace'/>
       </Switch>
     </Router>
   </Provider>

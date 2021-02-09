@@ -1,9 +1,8 @@
-export const TASK_SELECT_TAB = "SELECT_TAB";
+export const TASK_SET_TEXT = "SET_TEXT";
 
-export function selectTabAction(tabId) {
+export function setTextAction(text) {
     return {
-        type: TASK_SELECT_TAB,
-        tabId: tabId
+        type: TASK_SET_TEXT,
+        text: text
     }
-    
 }
