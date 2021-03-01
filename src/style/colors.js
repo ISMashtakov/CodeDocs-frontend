@@ -4,6 +4,11 @@ const COLORS = {
   VIOLET: '#3F334D',
   GREY: '#7D8491',
   LIGHT_GREY: '#EFF0F2',
+  DARK_BLUE: '#0B2545',
+  BLUE: '#4A6FA5',
+  BUTTON_BLUE: '#5688C7',
+  BUTTON_ORANGE: '#F45D01',
+  BORDER_BLUE: 'rgba(74, 111, 165, 0.7)',
 };
 
 export default COLORS;

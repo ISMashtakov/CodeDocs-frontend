@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import Header from './Header';
+import Header from '../general_items/Header';
 import COLORS from '../style/colors';
 import Workspace from "./Workspace";
 import DocumentTab from './DocumentTab';
