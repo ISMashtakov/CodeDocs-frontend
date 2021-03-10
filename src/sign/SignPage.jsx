@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import Input from '@material-ui/core/Input';
 import Button from '@material-ui/core/Button';
 import Visibility from '@material-ui/icons/Visibility';
@@ -8,42 +7,46 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
+import Snackbar from '@material-ui/core/Snackbar';
 
-import signBackground from '../images/signBackground.png';
 import logo from '../images/logo.png';
 import COLORS from '../style/colors';
+import FONTS from '../style/fonts';
 import authApi from '../helpers/auth_helper';
-import { selectTabAction } from './actions';
+import { MainUser } from "../helpers/user";
+import * as style from '../style/style';
 
 
-const TAB_WIDTH = 205;
 const TEXT_FIELD_STYLE = {
-  background: COLORS.WHITE, border: '2px solid', borderColor: COLORS.LIGHT_GREY, borderRadius: '7px', width: TAB_WIDTH * 2 - 32, height: 50, paddingLeft: 15, fontSize: 20, fontFamily: 'Roboto',
+  ...FONTS.BODY, background: COLORS.WHITE, border: `1px solid ${COLORS.BADGE_GRAY}`, borderRadius: '7px', width: "404px", height: 46, paddingLeft: 15, color: COLORS.BLACK
 };
 const BUTTON_STYLE = {
-  background: COLORS.ORANGE, borderRadius: '7px', width: TAB_WIDTH * 2 - 32, height: 50, color: COLORS.WHITE, fontFamily: 'Roboto',
+  ...style.BUTTON_STYLE, width: "404px", height: 45,
 };
 const TEXT_FIELD_TEXT_STYLE = {
-  textAlign: 'left', marginLeft: 17, color: COLORS.GREY, fontSize: 24, fontFamily: 'Roboto',
+  ...FONTS.CAPTION, textAlign: 'left', color: COLORS.DARK_BLUE, paddingLeft: 15
 };
-const TAB_PANEL_STYLE = {
-  boxShadow: '0px 5px 5px 1px rgba(0,0,0,0.3)', width: TAB_WIDTH * 2, borderRadius: '7px 7px 7px 7px', display: 'block', marginLeft: 'auto', marginRight: 'auto', position: 'relative', top: -15, border: '1px solid', borderColor: COLORS.LIGHT_GREY,
+const PANEL_STYLE = {
+  display: "flex", borderRadius: '7px 7px 7px 7px', display: 'inline-block', boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)", padding: "15px 25px", marginTop: 52, background: COLORS.WHITE
 };
-const PANEL_UNDER_TAB = {
-  marginTop: 10, marginBottom: 10
+const FORGOT_TEXT_STYLE = {
+  ...FONTS.BODY, textDecoration: "none", color: COLORS.BLUE, float: "right", marginTop: 10
 }
 
-function PasswordField({style}) {
+function PasswordField({style, value, onChange}) {
   const [showPassword, setShowPassword] = React.useState(false);
 
   return (
     <Input
       disableUnderline
-      style={style}
+      style={TEXT_FIELD_STYLE}
+      value={value} 
+      onChange={onChange}
       type={showPassword ? 'text' : 'password'}
       endAdornment={(
         <InputAdornment position="end">
           <IconButton
+            style={{color:COLORS.BADGE_GRAY}}
             onClick={() => { setShowPassword(!showPassword); }}
           >
             {showPassword ? <Visibility /> : <VisibilityOff />}
@@ -54,8 +57,7 @@ function PasswordField({style}) {
   );
 }
 
-function TextFieldWithCheck({text, style, checkFunc, textIfExist}) {
-  const [value, setValue] = React.useState("");
+function TextFieldWithCheck({text, style, checkFunc, textIfExist, onChange, value}) {
   const [isExist, setIsExist] = React.useState(false);
   async function checkExisting()
   {
@@ -65,46 +67,101 @@ function TextFieldWithCheck({text, style, checkFunc, textIfExist}) {
   return(
     <div style={style} >
       <div style={TEXT_FIELD_TEXT_STYLE}>{text}</div>
-      <Input disableUnderline style={TEXT_FIELD_STYLE} value={value} onChange={(event) => setValue(event.target.value)} onBlur={checkExisting}/>
+      <Input disableUnderline style={TEXT_FIELD_STYLE} value={value} onChange={onChange} onBlur={checkExisting}/>
       <div style={{color: "red"}}> {isExist?textIfExist:""}</div>
     </div>
   )
 }
 
 function SignUp(){
+  const [username, setUsername] = React.useState("");
+  const [mail, setMail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [isSnackbarOpen, setIsSnackbarOpen] = React.useState(false);
+  
+  async function handlerSignUp() {
+    const result = await authApi.signUp(username, mail, password);
+    if (result)
+    {
+      setIsSnackbarOpen(true);
+    }
+    else
+    {
+      alert("problem with creating"); //TODO work with differents problems
+    }
+    
+  }
+
   return (
     <div>
-      <div style={TAB_PANEL_STYLE} id="sign_SignPage_SignUpTab_div">
-        <div style={{ height: 15 }} />
-        <TextFieldWithCheck text="Username" checkFunc={authApi.checkUsername} textIfExist="username is already taken" />
-        <TextFieldWithCheck text="Email address" checkFunc={authApi.checkMail} textIfExist="email is already taken" style={{marginTop: 30}} />
-        <div style={{ ...TEXT_FIELD_TEXT_STYLE, marginTop: 30 }}>Password</div>
-        <PasswordField style={TEXT_FIELD_STYLE} />
-        <Button variant="contained" style={{ ...BUTTON_STYLE, marginTop: 50, marginBottom: 20 }}>SIGN UP</Button>
+      <div style={PANEL_STYLE} id="sign_SignPage_SignUpTab_div">
+        <TextFieldWithCheck text="Username" 
+                            onChange={(event) => setUsername(event.target.value)} 
+                            value={username} 
+                            checkFunc={authApi.checkUsername} 
+                            textIfExist="username is already taken" 
+        />
+        <TextFieldWithCheck text="Email" 
+                            onChange={(event) => setMail(event.target.value)} 
+                            value={mail} 
+                            checkFunc={authApi.checkMail}
+                            textIfExist="email is already taken"
+                            style={{marginTop: 10}} 
+        />
+        <div style={{ ...TEXT_FIELD_TEXT_STYLE, marginTop: 10}}>Password</div>
+        <div><PasswordField style={TEXT_FIELD_STYLE} value={password} onChange={(event) => setPassword(event.target.value)} /></div>
+        <Button variant="contained" disableElevation onClick={handlerSignUp} style={{ ...BUTTON_STYLE, marginTop: 20}}>SIGN UP</Button>
       </div>
+      <div style={{marginTop: 30}}>
+          <div ><Typography style={{fontSize: 22, fontFamily: "Calibri", fontWeight: 400}}>Already have an account? <Link href="/login">Login</Link></Typography></div>
+      </div>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={isSnackbarOpen}
+        onClose={() => setIsSnackbarOpen(false)}
+        message="Mail for activating send to mail"
+        autoHideDuration={5000}
+      />
     </div>
   );
 }
 
 function LogIn(){
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
+  async function handlerLogIn() {
+    const result = await authApi.logIn(username, password);
+    console.log(result)
+    if(result)
+    {
+      const user = new MainUser();
+      user.accessToken = result["access"]
+      user.refreshToken = result["refresh"]
+      await user.update();
+      user.saveToLocalStorage();
+      console.log(user)
+      document.location.href = "/workspace";
+    }
+
+  }
+
   return (
     <div>
-      <div style={TAB_PANEL_STYLE} id="sign_SignPage_LogInTab_div">
-        <div style={{ height: 15 }} />
-        <div style={TEXT_FIELD_TEXT_STYLE}>Username or E-mail</div>
-        <Input disableUnderline style={TEXT_FIELD_STYLE} />
-        <div style={{ ...TEXT_FIELD_TEXT_STYLE, marginTop: 30 }}>Password</div>
-        <PasswordField style={TEXT_FIELD_STYLE} />
-        <div style={{
-          textAlign: 'right', fontSize: 17, fontFamily: 'Arimo', marginTop: 15, marginRight: 17,
-        }}
-        >
-          <u><a href="#0" style={{ color: COLORS.GREY }}>Forgot password or username?</a></u>
+      <div style={PANEL_STYLE} id="sign_SignPage_LogInTab_div">
+        <div style={TEXT_FIELD_TEXT_STYLE}>Username</div>
+        <Input disableUnderline style={TEXT_FIELD_STYLE} value={username} onChange={(event) => setUsername(event.target.value)} />
+        <div style={{ ...TEXT_FIELD_TEXT_STYLE, marginTop: 10 }}>
+          Password 
+        </div>        
+        <PasswordField style={TEXT_FIELD_STYLE} value={password} onChange={(event) => setPassword(event.target.value)}/>
+        <div>
+          <a href="#0" style={FORGOT_TEXT_STYLE}>Forgot password?</a>
         </div>
-        <Button variant="contained" style={{ ...BUTTON_STYLE, marginTop: 50, marginBottom: 20 }}>LOG IN</Button>
+        <Button variant="contained" disableElevation onClick={handlerLogIn} style={{ ...BUTTON_STYLE, marginTop: 10}}>LOGIN</Button>
       </div>
-      <div style={{...TAB_PANEL_STYLE, marginTop: 20}}>
-          <div style={PANEL_UNDER_TAB}><Typography style={{fontSize: 20}}>New in CodeDocs? <Link style={{marginLeft:10, fontSize: 20}} href="/signup">Sign Up</Link></Typography></div>
+      <div style={{marginTop: 20}}>
+          <div ><Typography style={{...FONTS.BODY}}>New in Code Docs? <Link href="/signup">Sign Up</Link></Typography></div>
       </div>
     </div>
     
@@ -114,20 +171,13 @@ function LogIn(){
 function SignPage({isLogin}) {
 
   return (
-    <div style={{ width: '100%', height: '100%' }}>
-      <img
-        src={signBackground}
-        alt="signBackground"
-        style={{
-          zIndex: -10, position: 'absolute', left: 0, top: 0, width: '100%', height: '100%',
-        }}
-      />
+    <div style={{height: '100vh', background: COLORS.LIGHT_BLUE }}>
       <div style={{
-        display: 'block', marginLeft: 'auto', marginRight: 'auto', width: 480, textAlign: 'center',
+        display: 'block', marginLeft: 'auto', marginRight: 'auto', textAlign: 'center',
       }}
       >
-        <img src={logo} alt="logo" style={{ width: 463, top: 46 }} />
-        <font style={{ fontSize: 28, fontFamily: 'Segoe UI', color: COLORS.GREY }}><p>Welcome to Code Docs</p></font>
+        <img src={logo} alt="logo" style={{ height: 80, width: "auto", marginTop: 50}} />
+        <div style={{...FONTS.H1, color: COLORS.DARK_BLUE}}>{isLogin? "Login" : "Sign up"} Code Docs</div>
       {isLogin? <LogIn/> : <SignUp/>}
       </div>
     </div>

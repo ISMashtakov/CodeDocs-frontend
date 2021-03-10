@@ -6,6 +6,8 @@ import { BrowserRouter as Router, Route, Switch, Redirect} from "react-router-do
 import store from './redux/store';
 import SignPage from './sign/SignPage';
 import DocumentPage from './workspace/DocumentPage';
+import MailActivatePage from './sign/MailActivatePage';
+//import TEXT from './sockets';
 
 function App(){
   return(
@@ -26,6 +28,9 @@ function App(){
         </Route>
         <Route path='/workspace'>
           <DocumentPage/>
+        </Route>
+        <Route path='/activate'>
+          <MailActivatePage/>
         </Route>
         <Redirect from='/' to='/workspace'/>
       </Switch>
