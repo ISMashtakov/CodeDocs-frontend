@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Header from '../general_items/Header';
+import Header from '../workspace/Header';
 import COLORS from '../style/colors';
 import authApi from '../helpers/auth_helper';
 import urlParams from '../helpers/url_helper';
@@ -16,7 +16,7 @@ export default function MailActivateName() {
     return(
         <div>
           <Header/>
-          <div style={{background: COLORS.LIGHT_GREY, display: "block", width: "100%", height: "calc(100vh - 50px)"}}>
+          <div style={{background: COLORS.LIGHT_GRAY, display: "block", width: "100%", height: "calc(100vh - 50px)"}}>
               <div style={{textAlign: "center", fontSize: 45}}>
                   Mail successful activated
               </div>

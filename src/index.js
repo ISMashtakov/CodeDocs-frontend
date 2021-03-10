@@ -7,7 +7,7 @@ import store from './redux/store';
 import SignPage from './sign/SignPage';
 import DocumentPage from './workspace/DocumentPage';
 import MailActivatePage from './sign/MailActivatePage';
-import TEXT from './sockets';
+//import TEXT from './sockets';
 
 function App(){
   return(
@@ -27,7 +27,7 @@ function App(){
           <SignPage/>
         </Route>
         <Route path='/workspace'>
-          <TEXT/>
+          <DocumentPage/>
         </Route>
         <Route path='/activate'>
           <MailActivatePage/>
