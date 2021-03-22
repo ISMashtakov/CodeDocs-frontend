@@ -18,6 +18,6 @@ export function setConsoleHeight(height) {
 
 export function consoleDoubleClick() {
   return {
-    type: TASK_CONSOLE_DOUBLE_CLICK
+    type: TASK_CONSOLE_DOUBLE_CLICK,
   };
 }

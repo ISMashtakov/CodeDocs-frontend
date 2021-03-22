@@ -1,120 +1,131 @@
-import {get, post} from './request_helper';
-import {SERVER_URL} from '../constants';
+import { post } from './request_helper';
+import { SERVER_URL } from '../constants';
 
-const MAIN_AUTH_URL = SERVER_URL + "/auth"
+export const MAIN_AUTH_URL = `${SERVER_URL}/auth`;
 
-const LOG_IN_URL = MAIN_AUTH_URL + "/jwt/create/";
-const USER_ACTIVATE_URL = MAIN_AUTH_URL + "/users/activation/";
-const GET_USER_URL = MAIN_AUTH_URL + "/users/me/";
-const REFRESH_TOKEN_URL = MAIN_AUTH_URL + "/jwt/refresh/";
-const SIGN_UP_URL = MAIN_AUTH_URL + "/users/";
-const CHECK_USERNAME_URL = MAIN_AUTH_URL + "/check_username/";
-const CHECK_MAIL_URL = MAIN_AUTH_URL + "/check_email/";
+export const LOG_IN_URL = `${MAIN_AUTH_URL}/jwt/create/`;
+export const USER_ACTIVATE_URL = `${MAIN_AUTH_URL}/users/activation/`;
+export const REFRESH_TOKEN_URL = `${MAIN_AUTH_URL}/jwt/refresh/`;
+export const SIGN_UP_URL = `${MAIN_AUTH_URL}/users/`;
+export const CHECK_USERNAME_URL = `${MAIN_AUTH_URL}/check_username/`;
+export const CHECK_MAIL_URL = `${MAIN_AUTH_URL}/check_email/`;
 
-
-class AuthApi{   
-    async checkUsername(username){
-        const params = {
-            username: username.trim()
-        }
-        try{
-            const result = await post(CHECK_USERNAME_URL, params)
-            return result.status === 409
-        }
-        catch{
-            return false
-        }
-        
+class AuthApi {
+  async checkUsername(username) {
+    const params = {
+      username: username.trim(),
+    };
+    try {
+      const result = await post(CHECK_USERNAME_URL, params);
+      switch (result.status) {
+        case 409:
+          return await result.text();
+        default:
+          return '';
+      }
+    } catch (err) {
+      return '';
     }
+  }
 
-    async checkMail(mail){
-        const params = {
-            mail: mail.trim()
-        }
-        try{
-            const result = await post(CHECK_MAIL_URL, params)
-            return result.status === 409
-        }
-        catch{
-            return false
-        }
-        
+  async checkMail(mail) {
+    const params = {
+      email: mail.trim(),
+    };
+    try {
+      const result = await post(CHECK_MAIL_URL, params);
+      switch (result.status) {
+        case 409:
+          return await result.text();
+        default:
+          return '';
+      }
+    } catch (err) {
+      return '';
     }
+  }
 
-    async signUp(username, mail, password){
+  async signUp(username, mail, password) {
+    const params = {
+      username,
+      email: mail,
+      password,
+    };
+    try {
+      const result = await post(SIGN_UP_URL, params);
+      switch (result.status) {
+        case 400:
+          return { ...(await result.json()), isGood: false };
+        case 500:
+          if ((await result.text()).includes('Message was not accepted -- invalid mailbox.')) {
+            return { email: ['Email not exist'], isGood: false };
+          }
 
-        const params = {
-            username: username,
-            email: mail,
-            password: password
-        }
-        try{
-            const result = await post(SIGN_UP_URL, params)
-            return result.status === 201
-        }
-        catch{
-            return false
-        }
-        
+          return { isGood: false };
+
+        case 201:
+          return { ...(await result.json()), isGood: true };
+        default:
+          return { isGood: false };
+      }
+    } catch (err) {
+      return { isGood: false };
     }
+  }
 
-    async logIn(username, password){
-
-        const params = {
-            username: username,
-            password: password
-        }
-        try{
-            const result = await post(LOG_IN_URL, params)
-            if (!result.ok){
-                return null;
-            }
-            return await result.json()
-        }
-        catch{
-            return null
-        }
-        
+  async logIn(username, password) {
+    const params = {
+      username,
+      password,
+    };
+    try {
+      const result = await post(LOG_IN_URL, params);
+      switch (result.status) {
+        case 401:
+          return { problem: 'No active account found with the given credentials', isGood: false };
+        case 200:
+          return { ...(await result.json()), isGood: true };
+        default:
+          return { isGood: false };
+      }
+    } catch (err) {
+      return { isGood: false };
     }
+  }
 
-    async refreshTokens(refreshToken){
-        const params = {
-            refresh: refreshToken,
-        }
-        try{
-            const result = await post(REFRESH_TOKEN_URL, params)
-            return await result.json()
-        }
-        catch{
-            return null
-        }
+  async refreshTokens(refreshToken) {
+    const params = {
+      refresh: refreshToken,
+    };
+    try {
+      const result = await post(REFRESH_TOKEN_URL, params);
+      return await result.json();
+    } catch (err) {
+      return null;
     }
+  }
 
-    async getUser(accessToken){
-        try{
-            const result = await get(GET_USER_URL, undefined, accessToken)
-            return await result.json()
-        }
-        catch{
-            return null
-        }
+  async activateUser(uid, token) {
+    const params = {
+      uid,
+      token,
+    };
+    try {
+      const result = await post(USER_ACTIVATE_URL, params);
+      switch (result.status) {
+        case 204:
+          return { isGood: true };
+        case 400:
+          return { ...(await result.json()), isGood: false };
+        default:
+          return { isGood: false };
+      }
+    } catch (err) {
+      return { isGood: false };
     }
-
-    async activateUser(uid, token){
-        const params = {
-            uid: uid,
-            token: token
-        }
-        try{
-            const result = await post(USER_ACTIVATE_URL, params)
-            return result.status === 204
-        }
-        catch{
-            return false
-        }
-    }
+  }
 }
 
-const authApi = new AuthApi()
+const authApi = new AuthApi();
 
 export default authApi;

@@ -11,11 +11,11 @@ class UrlParams {
     return this.params.has(name);
   }
 
-  getUID(){
+  getUID() {
     return this.params.get('uid');
   }
 
-  getToken(){
+  getToken() {
     return this.params.get('token');
   }
 }
