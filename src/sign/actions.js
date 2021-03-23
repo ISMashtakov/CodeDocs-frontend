@@ -1,8 +1,16 @@
-export const TASK_SELECT_TAB = 'SELECT_TAB';
+export const TASK_SET_PROBLEMS = 'SET_PROBLEMS';
+export const TASK_SET_WRONG_LOGIN = 'SET_WRONG_LOGIN';
 
-export function selectTabAction(tabId) {
+export function setProblems(problems) {
   return {
-    type: TASK_SELECT_TAB,
-    tabId,
+    type: TASK_SET_PROBLEMS,
+    problems,
+  };
+}
+
+export function setWrongLogin(state) {
+  return {
+    type: TASK_SET_WRONG_LOGIN,
+    state,
   };
 }

@@ -11,7 +11,7 @@ function getParams(data) {
   return params;
 }
 
-export async function post(url, data = {}, token) {
+export async function post(url, data = {}, token, user) {
   const params = getParams(data);
 
   const headers = {
@@ -22,26 +22,47 @@ export async function post(url, data = {}, token) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     method: 'POST',
     headers,
     body: params,
   });
+
+  if (user && response.status === 401) {
+    await user.refreshTokens();
+    headers.Authorization = `Bearer ${user.accessToken}`;
+    response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: params,
+    });
+  }
   return response;
 }
 
-export async function get(url, data = {}, token) {
+export async function get(url, data = {}, user) {
   const params = getParams(data);
 
   const headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
   };
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
+
+  if (user) {
+    headers.Authorization = `Bearer ${user.accessToken}`;
   }
-  const response = await fetch(`${url}?${params}`, {
+
+  let response = await fetch(`${url}?${params}`, {
     method: 'GET',
     headers,
   });
+
+  if (user && response.status === 401) {
+    await user.refreshTokens();
+    headers.Authorization = `Bearer ${user.accessToken}`;
+    response = await fetch(`${url}?${params}`, {
+      method: 'GET',
+      headers,
+    });
+  }
   return response;
 }

@@ -1,4 +1,5 @@
 import authApi from './auth_helper';
+import usersApi from './users_helper';
 
 const USER_SETTING_IN_LOCALSTORAGE = 'USER_SETTINGS';
 
@@ -58,15 +59,12 @@ export class MainUser extends User {
     }
   }
 
-  async update() {
-    if (this.accessToken) {
-      const data = await authApi.getUser(this.accessToken);
-      console.log(data);
-      if (data) {
-        this.color = data.account_color;
-        this.username = data.username;
-        this.shortName = data.shortName;
-      }
+  async updateInfoFromServer() {
+    const data = await usersApi.getMe(this.accessToken);
+    if (data) {
+      this.color = data.account_color;
+      this.username = data.username;
+      this.shortName = data.shortName;
     }
   }
 }

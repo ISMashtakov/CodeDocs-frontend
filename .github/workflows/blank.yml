@@ -37,4 +37,4 @@ jobs:
         run: npm test
       
       - name: run eslint
-        run: npm run eslint
+        run: npm run eslint:fix
