@@ -2,9 +2,9 @@ import { TASK_SET_PROBLEMS, TASK_SET_WRONG_LOGIN } from './actions';
 
 function getStartState() {
   return {
-    passwordProblem: 'sdfsdfsd',
-    emailProblem: 'sdfds',
-    usernameProblem: 'fdsgdsfg',
+    passwordProblem: '',
+    emailProblem: '',
+    usernameProblem: '',
     wrongLogin: false,
   };
 }

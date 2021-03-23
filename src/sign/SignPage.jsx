@@ -133,7 +133,9 @@ const SignUp = connect(mapStateToPropsSignUp,
     if (result.isGood) {
       setSnackbarText('Activation mail was sended');
     }
-    setProblemsDispatched(result);
+    else{
+      setProblemsDispatched(result);
+    }
   }
 
   return (
