@@ -1,12 +1,6 @@
 import { TASK_SET_MAIN_USER } from './actions';
-import { MainUser } from '../helpers/user';
-import COLORS from '../style/colors';
 
 function getStartState() {
-  const user = new MainUser();
-  user.username = 'Morosova Milena';
-  user.mail = 'justemaiforexample@mail.ru';
-  user.color = COLORS.BUTTON_BLUE;
   return {
     mainUser: null,
   };
