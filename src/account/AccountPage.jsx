@@ -8,6 +8,11 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import { useSnackbar } from 'notistack';
 
 import { MainUser } from '../helpers/user';
 import { toLogin } from '../helpers/auth_helper';
@@ -17,11 +22,14 @@ import COLORS from '../style/colors';
 import FONTS from '../style/fonts';
 import * as mainStyle from '../style/style';
 import Avatar from '../general_items/Avatar';
-import ACCESS_TYPES from '../helpers/access_types';
-import logo from '../images/logo.png';
 import ChangePasswordWindow from './ChangePasswordWindow';
 import ChangeEmailWindow from './ChangeEmailWindow';
 import ChangeUsernameWindow from './ChangeUsernameWindow';
+import SelectWithoutBorder from '../general_items/SelectWithoutBorder';
+import { DOWNLOAD_STATE } from '../helpers/general_helpers';
+import usersApi from '../helpers/users_helper';
+import CustomDialog from '../general_items/CustomDialog';
+import removeFileIcon from '../images/icons/file_remove_blue.png';
 
 const RIGHT_ARROW_STYLE = {
   width: 12,
@@ -154,62 +162,188 @@ const AccountCard = connect(mapStateToPropsAccountCard, {
   );
 });
 
-const FILES = [
-  {
-    id: 1, name: 'File_1.py', language: 'Python 3', access: 'Owner',
-  },
-  {
-    id: 2, name: 'Example.py', language: 'Python 3', access: 'Viewer',
-  },
-  {
-    id: 3, name: 'Very_big_and_greate_filename.cpp', language: 'C++', access: 'Viewer',
-  },
-  {
-    id: 4, name: 'new_file.hs', language: 'Haskell', access: 'Owner',
-  },
-  {
-    id: 5, name: 'File_1.py', language: 'Python 3', access: 'Owner',
-  },
-  {
-    id: 6, name: 'Example.py', language: 'Python 3', access: 'Viewer',
-  },
-  {
-    id: 7, name: 'Very_big_and_greate_filename.cpp', language: 'C++', access: 'Viewer',
-  },
-  {
-    id: 8, name: 'new_file.hs', language: 'Haskell', access: 'Owner',
-  },
-];
+function mapStateToPropsFileRow(state) {
+  return {
+    mainUser: state.generalData.mainUser,
+  };
+}
 
-function FileRow({ file }) {
+const FileRow = connect(mapStateToPropsFileRow, {
+  setMainUser: setMainUserAction,
+})(({
+  file, selected, mainUser, setMainUser, onClick,
+}) => {
+  const [dialogIsOpen, setDialogIsOpen] = React.useState(false);
+  const { enqueueSnackbar } = useSnackbar();
+
+  async function clickToDelete() {
+    const response = await usersApi.deleteFile(mainUser, file.id);
+    if (response.isGood) {
+      mainUser.deleteFile(file.id);
+      setMainUser(mainUser);
+    } else if (response.reason.length > 0) {
+      enqueueSnackbar({ text: response.reason.join('\n'), type: 'error' });
+    }
+  }
+
+  function DeleteConfirm() {
+    return (
+      <CustomDialog
+        icon={removeFileIcon}
+        title="Delete file"
+        onCancel={() => setDialogIsOpen(false)}
+        isOpen={dialogIsOpen}
+        onAction={clickToDelete}
+        actionText="Delete"
+      >
+        <div style={{
+          ...FONTS.H3, color: COLORS.TEXT_DARK_GRAY, margin: '20px 0px', width: 470,
+        }}
+        >
+          Are you sure you want to delete the file?
+        </div>
+      </CustomDialog>
+    );
+  }
+
   function FileButton() {
-    if (file.access === ACCESS_TYPES.OWNER) {
-      return (<Button style={{ ...RED_BUTTON_STYLE, width: 80 }} variant="outlined">DELETE</Button>);
+    if (file.isOwner) {
+      return (<Button style={{ ...RED_BUTTON_STYLE, width: 80 }} onClick={() => setDialogIsOpen(true)} variant="outlined">DELETE</Button>);
     }
     return (<Button style={{ ...BLUE_BUTTON_STYLE, width: 80 }} variant="outlined">LEAVE</Button>);
   }
 
   return (
-    <TableRow>
-      <TableCell style={{ ...FILE_ROW_STYLE }}><img src={logo} alt="logo" style={{ height: 24, width: 'auto' }} /></TableCell>
+    <TableRow onClick={onClick} onDoubleClick={() => {}} style={{ ...(selected ? { backgroundColor: COLORS.GRAY2 } : {}), cursor: 'pointer' }}>
+      <TableCell style={{ ...FILE_ROW_STYLE }}><img src={file.icon} alt="logo" style={{ height: 24, width: 'auto' }} /></TableCell>
       <TableCell style={{ ...FILE_ROW_STYLE, width: 188, wordBreak: 'break-all' }}>{file.name}</TableCell>
       <TableCell style={{ ...FILE_ROW_STYLE }}>{file.language}</TableCell>
       <TableCell style={{ ...FILE_ROW_STYLE }}>{file.access}</TableCell>
       <TableCell style={{ ...FILE_ROW_STYLE }}><FileButton /></TableCell>
+      <DeleteConfirm />
     </TableRow>
+  );
+});
+
+function LanguageSelect({ language, onChange }) {
+  return (
+    <FormControl style={{ backgroundColor: COLORS.WHITE }}>
+      <SelectWithoutBorder
+        style={{ width: 120 }}
+        value={language}
+        onChange={onChange}
+      >
+        <MenuItem value="python">Python3</MenuItem>
+        <MenuItem value="js">JS</MenuItem>
+      </SelectWithoutBorder>
+    </FormControl>
   );
 }
 
-function FilesPanel() {
-  const [selectedTab, setSelectedTab] = React.useState(0);
-  const [filename, setFilename] = React.useState('');
+function mapStateToPropsNewFilesPanel(state) {
+  return {
+    mainUser: state.generalData.mainUser,
+    filesIsUpdated: state.generalData.mainUser.filesIsUpdated,
+    count: state.generalData.mainUser.filesLength,
+  };
+}
 
-  let files = [];
-  if (selectedTab === 0) {
-    files = FILES;
-  } else if (selectedTab === 1) {
-    files = FILES.filter((item) => item.access === ACCESS_TYPES.OWNER);
+const NewFilesPanel = connect(mapStateToPropsNewFilesPanel, {
+  setMainUser: setMainUserAction,
+})(({ mainUser, setMainUser }) => {
+  const [filename, setFilename] = React.useState('');
+  const [language, setLanguage] = React.useState('python');
+  const { enqueueSnackbar } = useSnackbar();
+
+  async function clickToCreate() {
+    if (filename.length <= 0) {
+      enqueueSnackbar({ text: 'Filename can not be empty!!!', type: 'error' });
+      return;
+    }
+
+    const response = await usersApi.createFile(mainUser, filename, language);
+    if (response.isGood) {
+      mainUser.addFile(response.id, filename, language);
+      setMainUser(mainUser);
+      setFilename('');
+    } else if (response.reason.length > 0) {
+      enqueueSnackbar({ text: response.reason.join('\n'), type: 'error' });
+    }
   }
+
+  return (
+    <div style={{
+      backgroundColor: COLORS.WHITE, marginTop: 30, width: 651, padding: 20,
+    }}
+    >
+      <TextField
+        id="account_AccountPage_FilesPanel_filenameTextField"
+        style={{ width: 479 }}
+        label="Filename"
+        value={filename}
+        variant="outlined"
+        onChange={(event) => setFilename(event.target.value)}
+        InputProps={{
+          // style: { height: 46 },
+          endAdornment:
+  <InputAdornment position="end">
+    <LanguageSelect
+      language={language}
+      onChange={(event) => { setLanguage(event.target.value); }}
+    />
+  </InputAdornment>,
+
+        }}
+        InputLabelProps={{
+          // style: {transform: "translate(14px, 15px) scale(1)"},
+        }}
+      />
+      <Button
+        id="account_AccountPage_FilesPanel_createFileButton"
+        variant="contained"
+        style={{
+          ...mainStyle.BUTTON_STYLE, width: 157, marginLeft: 15, boxShadow: '0 0 0 0', height: 55,
+        }}
+        onClick={clickToCreate}
+      >
+        CREATE FILE
+      </Button>
+    </div>
+  );
+});
+
+function mapStateToPropsFilesPanel(state) {
+  return {
+    mainUser: state.generalData.mainUser,
+    filesIsUpdated: state.generalData.mainUser.filesIsUpdated,
+    count: state.generalData.mainUser.filesLength,
+  };
+}
+
+const FilesPanel = connect(mapStateToPropsFilesPanel, {
+  setMainUser: setMainUserAction,
+})(({ mainUser, setMainUser }) => {
+  const [selectedTab, setSelectedTab] = React.useState(0);
+  const [updateFilesState, setUpdateFilesState] = React.useState(DOWNLOAD_STATE.NEED_DOWNLOAD);
+  const [selectedFile, setSelectedFile] = React.useState(null);
+
+  React.useEffect(async () => {
+    if (updateFilesState !== DOWNLOAD_STATE.NEED_DOWNLOAD) return;
+
+    if (!mainUser.filesIsUpdated) {
+      setUpdateFilesState(DOWNLOAD_STATE.DOWNLOADING);
+      const isGood = await mainUser.updateFilesFromServer();
+      if (isGood) {
+        setMainUser(mainUser);
+      } else {
+        setUpdateFilesState(DOWNLOAD_STATE.FAIL);
+        // alert("problem during getting files")
+      }
+    }
+    setUpdateFilesState(DOWNLOAD_STATE.DOWNLOAD);
+  });
+
+  const files = (selectedTab === 0) ? mainUser.files : mainUser.myFiles;
 
   return (
     <div style={{ float: 'left', marginLeft: 79 }} id="account_AccountPage_FilesPanel_div">
@@ -245,52 +379,45 @@ function FilesPanel() {
       >
         <Table>
           <TableBody>
-            {files.map((file) => <FileRow key={file.id} file={file} />)}
+            {
+              (mainUser.filesIsUpdated)
+                ? files.map((file) => (
+                  <FileRow
+                    key={file.id}
+                    file={file}
+                    onClick={() => setSelectedFile(file.id)}
+                    selected={selectedFile === file.id}
+                  />
+                ))
+                : (
+                  <TableRow>
+                    <TableCell>
+                      <CircularProgress style={{ color: COLORS.BUTTON_BLUE }} size={20} />
+                    </TableCell>
+                  </TableRow>
+                )
+            }
           </TableBody>
         </Table>
       </Box>
-      <div style={{
-        backgroundColor: COLORS.WHITE, marginTop: 30, width: 651, padding: 20,
-      }}
-      >
-        <TextField
-          id="account_AccountPage_FilesPanel_filenameTextField"
-          style={{ width: 479 }}
-          label="Filename"
-          value={filename}
-          variant="outlined"
-          onChange={(event) => setFilename(event.target.value)}
-          InputProps={{
-            style: { height: 46 },
-          }}
-          InputLabelProps={{
-            // style: {transform: "translate(14px, 15px) scale(1)"},
-          }}
-        />
-        <Button
-          id="account_AccountPage_FilesPanel_createFileButton"
-          variant="contained"
-          style={{
-            ...mainStyle.BUTTON_STYLE, width: 157, marginLeft: 15, boxShadow: '0 0 0 0',
-          }}
-          onClick={() => {}}
-        >
-          CREATE FILE
-        </Button>
-      </div>
+      <NewFilesPanel />
     </div>
   );
-}
+});
 
 function AccountPage({ mainUser, setMainUser }) {
   const [userValid, setUserValid] = React.useState(false);
+  const [updateState, setUpdateState] = React.useState(DOWNLOAD_STATE.NEED_DOWNLOAD);
+
   React.useEffect(async () => {
+    if (updateState !== DOWNLOAD_STATE.NEED_DOWNLOAD) return;
+
+    setUpdateState(DOWNLOAD_STATE.DOWNLOADING);
     if (mainUser === null) {
       const user = new MainUser();
       user.loadFromLocalStorage();
       const isValid = await user.isValid();
       if (isValid) {
-        await user.updateInfoFromServer();
         setMainUser(user);
         setUserValid(true);
       } else {
@@ -303,7 +430,9 @@ function AccountPage({ mainUser, setMainUser }) {
       mainUser.deleteFromLocalStorage();
       toLogin();
     }
+    setUpdateState(DOWNLOAD_STATE.DOWNLOAD);
   });
+
   if (!userValid) {
     return (<div />);
   }

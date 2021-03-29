@@ -11,7 +11,7 @@ function getParams(data) {
   return params;
 }
 
-export async function post(url, data = {}, user) {
+export async function post(url, data = {}, user, type = 'POST') {
   const params = getParams(data);
 
   const headers = {
@@ -24,7 +24,7 @@ export async function post(url, data = {}, user) {
   }
 
   let response = await fetch(url, {
-    method: 'POST',
+    method: type,
     headers,
     body: params,
   });
@@ -34,7 +34,7 @@ export async function post(url, data = {}, user) {
     if (!user.accessToken) throw new Error('Bad auth token');
     headers.Authorization = `Bearer ${user.accessToken}`;
     response = await fetch(url, {
-      method: 'POST',
+      method: type,
       headers,
       body: params,
     });

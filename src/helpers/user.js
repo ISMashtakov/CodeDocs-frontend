@@ -1,5 +1,6 @@
 import authApi from './auth_helper';
 import usersApi from './users_helper';
+import File, { ACCESS_TYPES } from './file';
 
 const USER_SETTING_IN_LOCALSTORAGE = 'USER_SETTINGS';
 
@@ -29,6 +30,7 @@ export class MainUser extends User {
     this.accessToken = null;
     this.refreshToken = null;
     this.lastValidCheckDate = null;
+    this.files = null;
   }
 
   saveToLocalStorage() {
@@ -74,6 +76,15 @@ export class MainUser extends User {
     return false;
   }
 
+  async updateFilesFromServer() {
+    const data = await usersApi.getMyFiles(this);
+    if (data) {
+      this.files = data;
+      return true;
+    }
+    return false;
+  }
+
   async isValid() {
     if (this.lastValidCheckDate && (new Date() - this.lastValidCheckDate) / 1000 / 60 < 5) {
       return true;
@@ -84,5 +95,36 @@ export class MainUser extends User {
       return status;
     }
     return false;
+  }
+
+  get filesIsUpdated() {
+    return this.files !== null;
+  }
+
+  get myFiles() {
+    if (this.filesIsUpdated) return this.files.filter((item) => item.isOwner);
+    return null;
+  }
+
+  addFile(id, filename, language) {
+    const file = new File();
+    file.name = filename;
+    file.id = id;
+    file.access = ACCESS_TYPES.OWNER;
+    file.language = language;
+    if (this.filesIsUpdated) {
+      this.files.push(file);
+    }
+  }
+
+  get filesLength() {
+    if (this.filesIsUpdated) return this.files.length;
+    return 0;
+  }
+
+  deleteFile(id) {
+    if (this.filesIsUpdated) {
+      this.files = this.files.filter((item) => item.id !== id);
+    }
   }
 }

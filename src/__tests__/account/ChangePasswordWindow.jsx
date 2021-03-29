@@ -14,7 +14,7 @@ import {
 } from '../../__test_helpers__/mocks';
 import { sleep } from '../../__test_helpers__/help_funcs';
 import { CHANGE_PASSWOD_URL } from '../../helpers/users_helper';
-import { testUser } from '../../__test_helpers__/data';
+import { getTestUser } from '../../__test_helpers__/data';
 
 let container = null;
 
@@ -22,7 +22,7 @@ beforeEach(() => {
   jest.spyOn(global, 'fetch').mockImplementation(simpleFetch());
   container = document.createElement('div');
   document.body.appendChild(container);
-  store.dispatch(setMainUserAction(testUser));
+  store.dispatch(setMainUserAction(getTestUser()));
 });
 
 afterEach(() => {
@@ -45,18 +45,18 @@ it('ChangePasswordWindow render good', async () => {
     );
   });
 
-  expect(document.getElementById('account_ChangePasswordWindow_Dialog')).not.toBeTruthy();
+  expect(document.getElementById('general_items_CustomDialog_Dialog')).not.toBeTruthy();
   await act(async () => {
     store.dispatch(setChangePasswordIsOpenAction(true));
     await sleep(1000);
   });
-  expect(document.getElementById('account_ChangePasswordWindow_Dialog')).toBeTruthy();
+  expect(document.getElementById('general_items_CustomDialog_Dialog')).toBeTruthy();
 
   expect(document.getElementById('account_ChangePasswordWindow_Dialog_CurrentPasswordTextField')).toBeTruthy();
   expect(document.getElementById('account_ChangePasswordWindow_Dialog_NewPasswordTextField')).toBeTruthy();
 
-  expect(document.getElementById('account_ChangePasswordWindow_Dialog_SaveButton')).toBeTruthy();
-  const cancelButton = document.getElementById('account_ChangePasswordWindow_Dialog_CancelButton');
+  expect(document.getElementById('general_items_CustomDialog_Dialog_ActionButton')).toBeTruthy();
+  const cancelButton = document.getElementById('general_items_CustomDialog_Dialog_CancelButton');
   expect(cancelButton).toBeTruthy();
 
   await act(async () => {
@@ -64,7 +64,7 @@ it('ChangePasswordWindow render good', async () => {
     await sleep(1000);
   });
 
-  expect(document.getElementById('account_ChangePasswordWindow_Dialog')).not.toBeTruthy();
+  expect(document.getElementById('general_items_CustomDialog_Dialog')).not.toBeTruthy();
 });
 
 it('ChangePasswordWindow bad save', async () => {
@@ -82,7 +82,7 @@ it('ChangePasswordWindow bad save', async () => {
     await sleep(1000);
   });
 
-  const saveButton = document.getElementById('account_ChangePasswordWindow_Dialog_SaveButton');
+  const saveButton = document.getElementById('general_items_CustomDialog_Dialog_ActionButton');
 
   await act(async () => {
     fireEvent.click(saveButton);
@@ -90,7 +90,7 @@ it('ChangePasswordWindow bad save', async () => {
   });
 
   expect(fetch).toHaveBeenCalledTimes(1);
-  expect(document.getElementById('account_ChangePasswordWindow_Dialog').innerHTML).toContain('new_password problem');
+  expect(document.getElementById('general_items_CustomDialog_Dialog').innerHTML).toContain('new_password problem');
 });
 
 it('ChangePasswordWindow good save', async () => {
@@ -108,7 +108,7 @@ it('ChangePasswordWindow good save', async () => {
     await sleep(1000);
   });
 
-  const saveButton = document.getElementById('account_ChangePasswordWindow_Dialog_SaveButton');
+  const saveButton = document.getElementById('general_items_CustomDialog_Dialog_ActionButton');
 
   const currentPasswordField = document.getElementById('account_ChangePasswordWindow_Dialog_CurrentPasswordTextField');
   const newPasswordField = document.getElementById('account_ChangePasswordWindow_Dialog_NewPasswordTextField');
@@ -128,5 +128,5 @@ it('ChangePasswordWindow good save', async () => {
   expect(fetch.mock.calls[0][1].method).toEqual('POST');
   expect(fetch.mock.calls[0][1].body).toEqual('new_password=new&current_password=current');
   expect(container.innerHTML).toContain('Password changed successfully!');
-  expect(document.getElementById('account_ChangePasswordWindow_Dialog')).not.toBeTruthy();
+  expect(document.getElementById('general_items_CustomDialog_Dialog')).not.toBeTruthy();
 });

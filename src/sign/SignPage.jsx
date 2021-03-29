@@ -8,9 +8,9 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
-import Snackbar from '@material-ui/core/Snackbar';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import TextField from '@material-ui/core/TextField';
+import { useSnackbar } from 'notistack';
 
 import logo from '../images/logo.png';
 import COLORS from '../style/colors';
@@ -19,6 +19,7 @@ import authApi, { getAfterLoginPage } from '../helpers/auth_helper';
 import { MainUser } from '../helpers/user';
 import * as mainStyle from '../style/style';
 import { setProblems, setWrongLogin } from './actions';
+import { openPage } from '../helpers/general_helpers';
 
 const BUTTON_STYLE = {
   ...mainStyle.BUTTON_STYLE, width: '404px',
@@ -115,12 +116,12 @@ const SignUp = connect(mapStateToPropsSignUp,
   const [username, setUsername] = React.useState('');
   const [mail, setMail] = React.useState('');
   const [password, setPassword] = React.useState('');
-  const [snackbarText, setSnackbarText] = React.useState('');
+  const { enqueueSnackbar } = useSnackbar();
 
   async function handlerSignUp() {
     const result = await authApi.signUp(username, mail, password);
     if (result.isGood) {
-      setSnackbarText('Activation mail was sended');
+      enqueueSnackbar({ text: 'Activation mail was sended!', type: 'success' });
     } else {
       setProblemsDispatched(result);
     }
@@ -159,13 +160,6 @@ const SignUp = connect(mapStateToPropsSignUp,
           </Typography>
         </div>
       </div>
-      <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        open={snackbarText !== ''}
-        onClose={() => setSnackbarText('')}
-        message={snackbarText}
-        autoHideDuration={5000}
-      />
     </div>
   );
 });
@@ -189,7 +183,7 @@ const LogIn = connect(mapStateToPropsLogIn, {
       user.accessToken = result.access;
       user.refreshToken = result.refresh;
       user.saveToLocalStorage();
-      document.location.href = getAfterLoginPage();
+      openPage(getAfterLoginPage());
     } else if (result.problem) {
       setWrongLoginDispatched(true);
     }

@@ -1,5 +1,6 @@
 import { post } from './request_helper';
 import { SERVER_URL, LOGIN_PAGE_NAME, ACCOUNT_PAGE_NAME } from '../constants';
+import { openPage } from './general_helpers';
 
 export const MAIN_AUTH_URL = `${SERVER_URL}/auth`;
 
@@ -11,12 +12,13 @@ export const CHECK_USERNAME_URL = `${MAIN_AUTH_URL}/check_username/`;
 export const CHECK_MAIL_URL = `${MAIN_AUTH_URL}/check_email/`;
 
 const PAGE_AFTER_LOGIN_IN_LOCAL_STORAGE = 'PAGE_AFTER_LOGIN';
+
 export function toLogin() {
   localStorage.setItem(PAGE_AFTER_LOGIN_IN_LOCAL_STORAGE, {
     pathname: window.location.pathname,
     search: window.location.search,
   });
-  document.location.href = `/${LOGIN_PAGE_NAME}`;
+  openPage(`/${LOGIN_PAGE_NAME}`);
 }
 
 export function getAfterLoginPage() {

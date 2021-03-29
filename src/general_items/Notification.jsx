@@ -21,7 +21,7 @@ export default function Notification(key, { text, type }) {
     case 'error':
       return (
         <div id={key} style={{ ...NOTIFICATIONS_STYLE }}>
-          <CancelOutlinedIcon style={{ color: COLORS.ICON_GREEN, marginRight: 20 }} />
+          <CancelOutlinedIcon style={{ color: COLORS.ICON_RED, marginRight: 20 }} />
           {text}
         </div>
       );

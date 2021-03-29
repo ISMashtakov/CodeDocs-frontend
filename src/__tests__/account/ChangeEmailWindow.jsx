@@ -1,136 +1,132 @@
-it('ChangeEmailWindow bad save', () => {});
+import React from 'react';
+import { fireEvent } from '@testing-library/dom';
+import { render, unmountComponentAtNode } from 'react-dom';
+import { act } from 'react-dom/test-utils';
+import { Provider } from 'react-redux';
 
-// #TODO ADD TESTS FOR EMAIL WINDOW
+import store from '../../redux/store';
+import ChangeEmailWindow from '../../account/ChangeEmailWindow';
+import CustomSnackbarProvider from '../../general_items/SnackbarProvider';
+import { setChangeEmailIsOpenAction } from '../../account/actions';
+import { setMainUserAction } from '../../redux/actions';
+import {
+  getFetchWithJsonParams, simpleFetch,
+} from '../../__test_helpers__/mocks';
+import { sleep } from '../../__test_helpers__/help_funcs';
+import { GET_USER_URL } from '../../helpers/users_helper';
+import { getTestUser } from '../../__test_helpers__/data';
 
-// import React from 'react';
-// import { fireEvent } from '@testing-library/dom';
-// import { render, unmountComponentAtNode } from 'react-dom';
-// import { act } from 'react-dom/test-utils';
-// import { Provider } from 'react-redux';
+let container = null;
 
-// import store from '../../redux/store';
-// import ChangeEmailWindow from '../../account/ChangeEmailWindow';
-// import CustomSnackbarProvider from '../../general_items/SnackbarProvider';
-// import { setChangeEmailIsOpenAction } from '../../account/actions';
-// import { setMainUserAction } from '../../redux/actions';
-// import {
-//   getFetchWithJsonParams, simpleFetch,
-// } from '../../__test_helpers__/mocks';
-// import { sleep } from '../../__test_helpers__/help_funcs';
-// import { CHANGE_EMAIL_URL } from '../../helpers/users_helper';
-// import { testUser } from '../../__test_helpers__/data';
+beforeEach(() => {
+  jest.spyOn(global, 'fetch').mockImplementation(simpleFetch());
+  container = document.createElement('div');
+  document.body.appendChild(container);
+  store.dispatch(setMainUserAction(getTestUser()));
+});
 
-// let container = null;
+afterEach(() => {
+  unmountComponentAtNode(container);
+  container.remove();
+  container = null;
+  global.fetch.mockRestore();
+  store.dispatch(setChangeEmailIsOpenAction(false));
+  store.dispatch(setMainUserAction(null));
+});
 
-// beforeEach(() => {
-//   jest.spyOn(global, 'fetch').mockImplementation(simpleFetch());
-//   container = document.createElement('div');
-//   document.body.appendChild(container);
-//   store.dispatch(setMainUserAction(testUser));
-// });
+it('ChangeEmailWindow render good', async () => {
+  act(() => {
+    render(
+      <CustomSnackbarProvider>
+        <Provider store={store}>
+          <ChangeEmailWindow />
+        </Provider>
+      </CustomSnackbarProvider>, container,
+    );
+  });
 
-// afterEach(() => {
-//   unmountComponentAtNode(container);
-//   container.remove();
-//   container = null;
-//   global.fetch.mockRestore();
-//   store.dispatch(setChangeEmailIsOpenAction(false));
-//   store.dispatch(setMainUserAction(null));
-// });
+  expect(document.getElementById('general_items_CustomDialog_Dialog')).not.toBeTruthy();
+  await act(async () => {
+    store.dispatch(setChangeEmailIsOpenAction(true));
+    await sleep(1000);
+  });
+  expect(document.getElementById('general_items_CustomDialog_Dialog')).toBeTruthy();
 
-// it('ChangeEmailWindow render good', async () => {
-//   act(() => {
-//     render(
-//       <CustomSnackbarProvider>
-//         <Provider store={store}>
-//           <ChangeEmailWindow />
-//         </Provider>
-//       </CustomSnackbarProvider>, container,
-//     );
-//   });
+  expect(
+    document.getElementById('account_ChangeEmailWindow_Dialog_EmailTextField'),
+  ).toBeTruthy();
 
-//   expect(document.getElementById('account_ChangeEmailWindow_Dialog')).not.toBeTruthy();
-//   await act(async () => {
-//     store.dispatch(setChangeEmailIsOpenAction(true));
-//     await sleep(1000);
-//   });
-//   expect(document.getElementById('account_ChangeEmailWindow_Dialog')).toBeTruthy();
+  expect(document.getElementById('general_items_CustomDialog_Dialog_ActionButton')).toBeTruthy();
+  const cancelButton = document.getElementById('general_items_CustomDialog_Dialog_CancelButton');
+  expect(cancelButton).toBeTruthy();
 
-// expect(
-// document.getElementById('account_ChangeEmailWindow_Dialog_EmailTextField')
-// ).toBeTruthy();
+  await act(async () => {
+    fireEvent.click(cancelButton);
+    await sleep(1000);
+  });
 
-//   expect(document.getElementById('account_ChangeEmailWindow_Dialog_SaveButton')).toBeTruthy();
-//   const cancelButton = document.getElementById('account_ChangeEmailWindow_Dialog_CancelButton');
-//   expect(cancelButton).toBeTruthy();
+  expect(document.getElementById('general_items_CustomDialog_Dialog')).not.toBeTruthy();
+});
 
-//   await act(async () => {
-//     fireEvent.click(cancelButton);
-//     await sleep(1000);
-//   });
+it('ChangeEmailWindow bad save', async () => {
+  const fetch = jest.spyOn(global, 'fetch')
+    .mockImplementation(getFetchWithJsonParams({ email: 'email problem' }, 400));
 
-//   expect(document.getElementById('account_ChangeEmailWindow_Dialog')).not.toBeTruthy();
-// });
+  await act(async () => {
+    store.dispatch(setChangeEmailIsOpenAction(true));
+    render(
+      <CustomSnackbarProvider>
+        <Provider store={store}>
+          <ChangeEmailWindow />
+        </Provider>
+      </CustomSnackbarProvider>, container,
+    );
+    await sleep(1000);
+  });
 
-// it('ChangeEmailWindow bad save', async () => {
-//   const fetch = jest.spyOn(global, 'fetch').
-// mockImplementation(getFetchWithJsonParams({ email: 'email problem' }, 400));
+  const saveButton = document.getElementById('general_items_CustomDialog_Dialog_ActionButton');
 
-//   await act(async () => {
-//     store.dispatch(setChangeEmailIsOpenAction(true));
-//     render(
-//       <CustomSnackbarProvider>
-//         <Provider store={store}>
-//           <ChangeEmailWindow />
-//         </Provider>
-//       </CustomSnackbarProvider>, container,
-//     );
-//     await sleep(1000);
-//   });
+  await act(async () => {
+    fireEvent.click(saveButton);
+    await sleep(1000);
+  });
 
-//   const saveButton = document.getElementById('account_ChangeEmailWindow_Dialog_SaveButton');
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(document.getElementById('general_items_CustomDialog_Dialog')
+    .innerHTML).toContain('email problem');
+});
 
-//   await act(async () => {
-//     fireEvent.click(saveButton);
-//     await sleep(1000);
-//   });
+it('ChangeEmailWindow good save', async () => {
+  const fetch = jest.spyOn(global, 'fetch').mockImplementation(getFetchWithJsonParams({}, 200));
 
-//   expect(fetch).toHaveBeenCalledTimes(1);
-//   expect(document.getElementById('account_ChangeEmailWindow_Dialog').
-// innerHTML).toContain('email problem');
-// });
+  await act(async () => {
+    store.dispatch(setChangeEmailIsOpenAction(true));
+    render(
+      <CustomSnackbarProvider>
+        <Provider store={store}>
+          <ChangeEmailWindow />
+        </Provider>
+      </CustomSnackbarProvider>, container,
+    );
+    await sleep(1000);
+  });
 
-// it('ChangeEmailWindow good save', async () => {
-//   const fetch = jest.spyOn(global, 'fetch').mockImplementation(getFetchWithJsonParams({}, 204));
+  const saveButton = document.getElementById('general_items_CustomDialog_Dialog_ActionButton');
 
-//   await act(async () => {
-//     store.dispatch(setChangeEmailIsOpenAction(true));
-//     render(
-//       <CustomSnackbarProvider>
-//         <Provider store={store}>
-//           <ChangeEmailWindow />
-//         </Provider>
-//       </CustomSnackbarProvider>, container,
-//     );
-//     await sleep(1000);
-//   });
+  const emailField = document.getElementById('account_ChangeEmailWindow_Dialog_EmailTextField');
+  expect(emailField).toBeTruthy();
 
-//   const saveButton = document.getElementById('account_ChangeEmailWindow_Dialog_SaveButton');
+  await act(async () => {
+    fireEvent.change(emailField, { target: { value: 'email' } });
+    await sleep(1000);
+    fireEvent.click(saveButton);
+    await sleep(1000);
+  });
 
-//   const emailField = document.getElementById('account_ChangeEmailWindow_Dialog_EmailTextField');
-//   expect(emailField).toBeTruthy();
-
-//   await act(async () => {
-//     fireEvent.change(emailField, { target: { value: 'email' } });
-//     await sleep(1000);
-//     fireEvent.click(saveButton);
-//     await sleep(1000);
-//   });
-
-//   expect(fetch).toHaveBeenCalledTimes(1);
-//   expect(fetch.mock.calls[0][0]).toEqual(CHANGE_EMAIL_URL);
-//   expect(fetch.mock.calls[0][1].method).toEqual('POST');
-//   expect(fetch.mock.calls[0][1].body).toEqual('new_email=email');
-//   expect(container.innerHTML).toContain('Password changed successfully!');
-//   expect(document.getElementById('account_ChangeEmailWindow_Dialog')).not.toBeTruthy();
-// });
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(fetch.mock.calls[0][0]).toEqual(GET_USER_URL);
+  expect(fetch.mock.calls[0][1].method).toEqual('PATCH');
+  expect(fetch.mock.calls[0][1].body).toEqual('email=email');
+  expect(container.innerHTML).toContain('Email changed successfully!');
+  expect(document.getElementById('general_items_CustomDialog_Dialog')).not.toBeTruthy();
+});
