@@ -11,28 +11,30 @@ function getParams(data) {
   return params;
 }
 
-export async function post(url, data = {}, token, user) {
+export async function post(url, data = {}, user, type = 'POST') {
   const params = getParams(data);
 
   const headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
   };
 
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
+  if (user) {
+    if (!user.accessToken) throw new Error('Bad auth token');
+    headers.Authorization = `Bearer ${user.accessToken}`;
   }
 
   let response = await fetch(url, {
-    method: 'POST',
+    method: type,
     headers,
     body: params,
   });
 
   if (user && response.status === 401) {
     await user.refreshTokens();
+    if (!user.accessToken) throw new Error('Bad auth token');
     headers.Authorization = `Bearer ${user.accessToken}`;
     response = await fetch(url, {
-      method: 'POST',
+      method: type,
       headers,
       body: params,
     });
@@ -48,6 +50,7 @@ export async function get(url, data = {}, user) {
   };
 
   if (user) {
+    if (!user.accessToken) throw new Error('Bad auth token');
     headers.Authorization = `Bearer ${user.accessToken}`;
   }
 
@@ -58,6 +61,7 @@ export async function get(url, data = {}, user) {
 
   if (user && response.status === 401) {
     await user.refreshTokens();
+    if (!user.accessToken) throw new Error('Bad auth token');
     headers.Authorization = `Bearer ${user.accessToken}`;
     response = await fetch(`${url}?${params}`, {
       method: 'GET',

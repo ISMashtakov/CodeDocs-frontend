@@ -15,8 +15,11 @@ const COLORS = {
   BADGE_GRAY: '#BDBDBD',
   BLACK: '#000000',
   GRAY2: '#E0E0E0',
+  BACKGROUND_GRAY3: '#828282',
   TEXT_RED: '#C75656',
   BUTTON_RED: '#D81717',
+  ICON_GREEN: '#B7C756',
+  ICON_RED: '#C75656',
 };
 
 export default COLORS;

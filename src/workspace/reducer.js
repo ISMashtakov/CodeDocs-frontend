@@ -9,22 +9,18 @@ const MIN_CONSOLE_HEIGHT = CONSOLE_HEADER_HEIGHT;
 function getStartState() {
   const user = new MainUser();
   user.username = 'Morosova Milena';
-  user.shortName = 'MM';
   user.color = COLORS.BUTTON_BLUE;
 
   const user1 = new User();
   user1.username = 'Uorosova Uilena';
-  user1.shortName = 'UU';
   user1.color = COLORS.BUTTON_ORANGE;
 
   const user2 = new User();
   user2.username = 'Iorosova Iilena';
-  user2.shortName = 'II';
   user2.color = COLORS.BUTTON_BLUE;
 
   const user3 = new User();
   user3.username = 'Oorosova Oilena';
-  user3.shortName = 'O';
   user3.color = '#C7567F';
 
   return {

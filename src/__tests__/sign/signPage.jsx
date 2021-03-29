@@ -11,6 +11,9 @@ import {
 } from '../../__test_helpers__/mocks';
 import { sleep } from '../../__test_helpers__/help_funcs';
 import { CHECK_USERNAME_URL, CHECK_MAIL_URL } from '../../helpers/auth_helper';
+import CustomSnackbarProvider from '../../general_items/SnackbarProvider';
+import { ACCOUNT_PAGE_NAME } from '../../constants';
+import * as generalHelpers from '../../helpers/general_helpers';
 
 let container = null;
 
@@ -30,9 +33,12 @@ afterEach(() => {
 it('sign up render good', () => {
   act(() => {
     render(
-      <Provider store={store}>
-        <SignPage isLogin={false} />
-      </Provider>, container,
+      <CustomSnackbarProvider>
+        <Provider store={store}>
+          <SignPage isLogin={false} />
+        </Provider>
+      </CustomSnackbarProvider>, container,
+
     );
   });
 
@@ -54,9 +60,11 @@ it('sign up filename existing check', async () => {
 
   act(() => {
     render(
-      <Provider store={store}>
-        <SignPage isLogin={false} />
-      </Provider>, container,
+      <CustomSnackbarProvider>
+        <Provider store={store}>
+          <SignPage isLogin={false} />
+        </Provider>
+      </CustomSnackbarProvider>, container,
     );
   });
 
@@ -99,9 +107,11 @@ it('sign up mail existing check', async () => {
 
   act(() => {
     render(
-      <Provider store={store}>
-        <SignPage isLogin={false} />
-      </Provider>, container,
+      <CustomSnackbarProvider>
+        <Provider store={store}>
+          <SignPage isLogin={false} />
+        </Provider>
+      </CustomSnackbarProvider>, container,
     );
   });
 
@@ -145,9 +155,11 @@ it('bad sign up check', async () => {
 
   act(() => {
     render(
-      <Provider store={store}>
-        <SignPage isLogin={false} />
-      </Provider>, container,
+      <CustomSnackbarProvider>
+        <Provider store={store}>
+          <SignPage isLogin={false} />
+        </Provider>
+      </CustomSnackbarProvider>, container,
     );
   });
 
@@ -182,9 +194,11 @@ it('bad sign up check', async () => {
 
   act(() => {
     render(
-      <Provider store={store}>
-        <SignPage isLogin={false} />
-      </Provider>, container,
+      <CustomSnackbarProvider>
+        <Provider store={store}>
+          <SignPage isLogin={false} />
+        </Provider>
+      </CustomSnackbarProvider>, container,
     );
   });
 
@@ -201,6 +215,39 @@ it('bad sign up check', async () => {
   const mailDiv = document.getElementById('sign_SignPage_SignUp_mailDiv');
   expect(mailDiv).toBeTruthy();
   expect(mailDiv.innerHTML).toContain('Email not exist');
+});
+
+it('Sign up good', async () => {
+  const fetch = jest.spyOn(global, 'fetch').mockImplementation(getFetchWithJsonParams({}, 201));
+
+  act(() => {
+    render(
+      <CustomSnackbarProvider>
+        <Provider store={store}>
+          <SignPage isLogin={false} />
+        </Provider>
+      </CustomSnackbarProvider>, container,
+    );
+  });
+  const usernameTextField = document.getElementById('sign_SignPage_SignUp_usernameDiv').querySelector('input');
+  const mailTextField = document.getElementById('sign_SignPage_SignUp_mailDiv').querySelector('input');
+  const passwordTextField = document.getElementById('sign_SignPage_SignUp_passwordInput');
+  const button = document.getElementById('sign_SignPage_SignUp_signupButton');
+  expect(button).toBeTruthy();
+
+  await act(async () => {
+    fireEvent.change(usernameTextField, { target: { value: 'test_username' } });
+    fireEvent.change(mailTextField, { target: { value: 'test_email' } });
+    fireEvent.change(passwordTextField, { target: { value: 'test_password' } });
+    await sleep(500);
+    fireEvent.click(button);
+    await sleep(1000);
+  });
+
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(fetch.mock.calls[0][1].body).toEqual('username=test_username&email=test_email&password=test_password');
+
+  expect(document.body.innerHTML).toContain('Activation mail was sended!');
 });
 
 it('login render good', () => {
@@ -242,27 +289,34 @@ it('login bad', async () => {
   expect(tab.innerHTML).toContain('Username or login is incorrect');
 });
 
-// TODO Make login good and sign up good
-// it('login good', async () => {
-//     const fetch = jest.spyOn(global, 'fetch').mockImplementation(getFetchWithJsonParams(500));
+it('login good', async () => {
+  const fetch = jest.spyOn(global, 'fetch').mockImplementation(getFetchWithJsonParams({}, 200));
+  const openPage = jest.spyOn(generalHelpers, 'openPage').mockImplementation(simpleFetch());
 
-//   const startUrl = window.location.href
-//   act(() => {
-//     render(
-//       <Provider store={store}>
-//         <SignPage isLogin={true} />
-//       </Provider>, container,
-//     );
-//   });
+  act(() => {
+    render(
+      <Provider store={store}>
+        <SignPage isLogin />
+      </Provider>, container,
+    );
+  });
 
-//   const usernameTextField = document.getElementById('sign_SignPage_LogInTab_UsernameTextField')
-//   const passwordTextField = document.getElementById('sign_SignPage_LogInTab_PasswordTextField')
-//   const button = document.getElementById('sign_SignPage_LogInTab_LoginButton')
+  const usernameTextField = document.getElementById('sign_SignPage_LogInTab_UsernameTextField');
+  const passwordTextField = document.getElementById('sign_SignPage_LogInTab_PasswordTextField');
+  const button = document.getElementById('sign_SignPage_LogInTab_LoginButton');
 
-//   act(() => {
-//     fireEvent.change(usernameTextField, { target: { value: 'test_username' } });
-//     fireEvent.change(passwordTextField, { target: { value: 'test_password' } });
-//     fireEvent.click(button);
-//     await sleep(1000)
-//   })
-// });
+  await act(async () => {
+    fireEvent.change(usernameTextField, { target: { value: 'test_username' } });
+    fireEvent.change(passwordTextField, { target: { value: 'test_password' } });
+    await sleep(1000);
+    fireEvent.click(button);
+    await sleep(1000);
+  });
+
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(fetch.mock.calls[0][1].body).toEqual('username=test_username&password=test_password');
+  expect(openPage).toHaveBeenCalledTimes(1);
+  expect(openPage).toHaveBeenCalledWith(`/${ACCOUNT_PAGE_NAME}`);
+
+  generalHelpers.openPage.mockRestore();
+});

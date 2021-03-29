@@ -8,31 +8,21 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
-import Snackbar from '@material-ui/core/Snackbar';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import TextField from '@material-ui/core/TextField';
+import { useSnackbar } from 'notistack';
 
 import logo from '../images/logo.png';
 import COLORS from '../style/colors';
 import FONTS from '../style/fonts';
-import authApi from '../helpers/auth_helper';
+import authApi, { getAfterLoginPage } from '../helpers/auth_helper';
 import { MainUser } from '../helpers/user';
 import * as mainStyle from '../style/style';
 import { setProblems, setWrongLogin } from './actions';
-
-const TEXT_FIELD_STYLE = {
-  ...FONTS.BODY, width: '404px', backgroundColor: 'white',
-};
-
-const TEXT_FIELD_INPUT_PROPS_STYLE = {
-  height: 50, backgroundColor: 'white',
-};
+import { openPage } from '../helpers/general_helpers';
 
 const BUTTON_STYLE = {
-  ...mainStyle.BUTTON_STYLE, width: '404px', height: 45,
-};
-const TEXT_FIELD_TEXT_STYLE = {
-  ...FONTS.CAPTION, textAlign: 'left', color: COLORS.TEXT_GRAY, paddingLeft: 15,
+  ...mainStyle.BUTTON_STYLE, width: '404px',
 };
 const PANEL_STYLE = {
   borderRadius: '6px', display: 'inline-block', boxShadow: '0px 4px 14px rgba(0, 0, 0, 0.1)', padding: '15px 25px', marginTop: 52, background: COLORS.WHITE,
@@ -50,7 +40,7 @@ function PasswordField({
   const [showPassword, setShowPassword] = React.useState(false);
   return (
     <TextField
-      style={TEXT_FIELD_STYLE}
+      style={mainStyle.TEXT_FIELD_STYLE}
       id={id}
       key={id}
       value={value}
@@ -59,7 +49,7 @@ function PasswordField({
       onChange={onChange}
       type={showPassword ? 'text' : 'password'}
       InputProps={{
-        style: TEXT_FIELD_INPUT_PROPS_STYLE,
+        style: mainStyle.TEXT_FIELD_INPUT_PROPS_STYLE,
         endAdornment:
   <InputAdornment position="end">
     <IconButton
@@ -87,16 +77,16 @@ function TextFieldWithCheck({
   const error = !!(text || problem);
   return (
     <div style={style} id={id}>
-      <div style={TEXT_FIELD_TEXT_STYLE}>{label}</div>
+      <div style={mainStyle.TEXT_FIELD_TEXT_STYLE}>{label}</div>
       <TextField
-        style={TEXT_FIELD_STYLE}
+        style={mainStyle.TEXT_FIELD_STYLE}
         error={error}
         value={value}
         variant="outlined"
         onChange={onChange}
         onBlur={checkExisting}
         InputProps={{
-          style: TEXT_FIELD_INPUT_PROPS_STYLE,
+          style: mainStyle.TEXT_FIELD_INPUT_PROPS_STYLE,
           endAdornment:
             (error) ? (
               <InputAdornment position="end">
@@ -126,14 +116,13 @@ const SignUp = connect(mapStateToPropsSignUp,
   const [username, setUsername] = React.useState('');
   const [mail, setMail] = React.useState('');
   const [password, setPassword] = React.useState('');
-  const [snackbarText, setSnackbarText] = React.useState('');
+  const { enqueueSnackbar } = useSnackbar();
 
   async function handlerSignUp() {
     const result = await authApi.signUp(username, mail, password);
     if (result.isGood) {
-      setSnackbarText('Activation mail was sended');
-    }
-    else{
+      enqueueSnackbar({ text: 'Activation mail was sended!', type: 'success' });
+    } else {
       setProblemsDispatched(result);
     }
   }
@@ -158,7 +147,7 @@ const SignUp = connect(mapStateToPropsSignUp,
           id="sign_SignPage_SignUp_mailDiv"
           problem={emailProblem}
         />
-        <div style={{ ...TEXT_FIELD_TEXT_STYLE, marginTop: 10 }}>Password</div>
+        <div style={{ ...mainStyle.TEXT_FIELD_TEXT_STYLE, marginTop: 10 }}>Password</div>
         <div><PasswordField errorText={passwordProblem} value={password} onChange={(event) => setPassword(event.target.value)} id="sign_SignPage_SignUp_passwordInput" /></div>
 
         <Button id="sign_SignPage_SignUp_signupButton" variant="contained" disableElevation onClick={handlerSignUp} style={{ ...BUTTON_STYLE, marginTop: 20 }}>SIGN UP</Button>
@@ -166,18 +155,11 @@ const SignUp = connect(mapStateToPropsSignUp,
       <div style={{ marginTop: 30 }}>
         <div>
           <Typography style={{ ...FONTS.H3 }}>
-            Already have an account?
+            {'Already have an account? '}
             <Link href="/login">Login</Link>
           </Typography>
         </div>
       </div>
-      <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        open={snackbarText !== ''}
-        onClose={() => setSnackbarText('')}
-        message={snackbarText}
-        autoHideDuration={5000}
-      />
     </div>
   );
 });
@@ -200,9 +182,8 @@ const LogIn = connect(mapStateToPropsLogIn, {
       const user = new MainUser();
       user.accessToken = result.access;
       user.refreshToken = result.refresh;
-      await user.updateInfoFromServer();
       user.saveToLocalStorage();
-      document.location.href = '/workspace';
+      openPage(getAfterLoginPage());
     } else if (result.problem) {
       setWrongLoginDispatched(true);
     }
@@ -219,16 +200,16 @@ const LogIn = connect(mapStateToPropsLogIn, {
             </div>
           )
           : null}
-        <div style={TEXT_FIELD_TEXT_STYLE}>Username</div>
+        <div style={mainStyle.TEXT_FIELD_TEXT_STYLE}>Username</div>
         <TextField
           id="sign_SignPage_LogInTab_UsernameTextField"
           variant="outlined"
-          style={TEXT_FIELD_STYLE}
-          InputProps={{ style: TEXT_FIELD_INPUT_PROPS_STYLE }}
+          style={mainStyle.TEXT_FIELD_STYLE}
+          InputProps={{ style: mainStyle.TEXT_FIELD_INPUT_PROPS_STYLE }}
           value={username}
           onChange={(event) => setUsername(event.target.value)}
         />
-        <div style={{ ...TEXT_FIELD_TEXT_STYLE, marginTop: 10 }}>
+        <div style={{ ...mainStyle.TEXT_FIELD_TEXT_STYLE, marginTop: 10 }}>
           Password
         </div>
         <PasswordField id="sign_SignPage_LogInTab_PasswordTextField" value={password} onChange={(event) => setPassword(event.target.value)} />
@@ -240,7 +221,7 @@ const LogIn = connect(mapStateToPropsLogIn, {
       <div style={{ marginTop: 20 }}>
         <div>
           <Typography style={{ ...FONTS.H3 }}>
-            New in Code Docs?
+            {'New in Code Docs? '}
             <Link href="/signup">Sign Up</Link>
           </Typography>
         </div>

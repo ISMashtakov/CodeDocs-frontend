@@ -1,5 +1,6 @@
 import { post } from './request_helper';
-import { SERVER_URL } from '../constants';
+import { SERVER_URL, LOGIN_PAGE_NAME, ACCOUNT_PAGE_NAME } from '../constants';
+import { openPage } from './general_helpers';
 
 export const MAIN_AUTH_URL = `${SERVER_URL}/auth`;
 
@@ -9,6 +10,26 @@ export const REFRESH_TOKEN_URL = `${MAIN_AUTH_URL}/jwt/refresh/`;
 export const SIGN_UP_URL = `${MAIN_AUTH_URL}/users/`;
 export const CHECK_USERNAME_URL = `${MAIN_AUTH_URL}/check_username/`;
 export const CHECK_MAIL_URL = `${MAIN_AUTH_URL}/check_email/`;
+
+const PAGE_AFTER_LOGIN_IN_LOCAL_STORAGE = 'PAGE_AFTER_LOGIN';
+
+export function toLogin() {
+  localStorage.setItem(PAGE_AFTER_LOGIN_IN_LOCAL_STORAGE, {
+    pathname: window.location.pathname,
+    search: window.location.search,
+  });
+  openPage(`/${LOGIN_PAGE_NAME}`);
+}
+
+export function getAfterLoginPage() {
+  const page = localStorage.getItem(PAGE_AFTER_LOGIN_IN_LOCAL_STORAGE);
+  if (page) return page;
+  return `/${ACCOUNT_PAGE_NAME}`;
+}
+
+export function deleteAfterLoginPage() {
+  localStorage.removeItem(PAGE_AFTER_LOGIN_IN_LOCAL_STORAGE);
+}
 
 class AuthApi {
   async checkUsername(username) {
