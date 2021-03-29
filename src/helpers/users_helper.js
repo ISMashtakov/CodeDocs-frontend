@@ -91,9 +91,9 @@ class UsersApi {
     }
   }
 
-  async createFile(user, filename, language) {
+  async createFile(user, name, language) {
     const params = {
-      filename,
+      name,
       programming_language: language,
     };
     try {
