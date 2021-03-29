@@ -249,7 +249,7 @@ it('AccountPage create file', async () => {
     fireEvent.click(createButton);
     await sleep(1000);
   });
-  expect(fetch.mock.calls[1][1].body).toEqual('filename=new_filename&programming_language=python');
+  expect(fetch.mock.calls[1][1].body).toEqual('name=new_filename&programming_language=python');
 
   const NEW_FILES = FILES_LIST.concat([getFileJson(15, 'new_filename')]);
 
