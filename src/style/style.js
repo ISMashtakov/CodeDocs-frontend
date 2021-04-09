@@ -20,3 +20,7 @@ export const TEXT_FIELD_INPUT_PROPS_STYLE = {
 export const TEXT_FIELD_TEXT_STYLE = {
   ...FONTS.CAPTION, textAlign: 'left', color: COLORS.TEXT_GRAY, paddingLeft: 15,
 };
+
+export const POPOVER_STYLE = {
+  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+};

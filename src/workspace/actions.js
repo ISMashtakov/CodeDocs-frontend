@@ -1,22 +1,62 @@
 export const TASK_SET_TEXT = 'SET_TEXT';
+export const TASK_SET_FILE = 'SET_FILE';
 export const TASK_SET_CONSOLE_HEIGHT = 'SET_CONSOLE_HEIGHT';
 export const TASK_CONSOLE_DOUBLE_CLICK = 'CONSOLE_DOUBLE_CLICK';
+export const TASK_ADD_ACTIVE_USER = 'ADD_ACTIVE_USER';
+export const TASK_DELETE_ACTIVE_USER = 'DELETE_ACTIVE_USER';
+export const TASK_SET_ACTIVE_USERS = 'SET_ACTIVE_USERS';
+export const TASK_SET_ALL_USERS = 'SET_ALL_USERS';
 
-export function setTextAction(text) {
+export function setTextAction(name) {
   return {
     type: TASK_SET_TEXT,
-    text,
+    name,
   };
 }
 
-export function setConsoleHeight(height) {
+export function setFileAction(file) {
+  return {
+    type: TASK_SET_FILE,
+    file,
+  };
+}
+
+export function setAllUsersAction(users) {
+  return {
+    type: TASK_SET_ALL_USERS,
+    users,
+  };
+}
+
+export function addActiveUserAction(user) {
+  return {
+    type: TASK_ADD_ACTIVE_USER,
+    user,
+  };
+}
+
+export function deleteActiveUserAction(user) {
+  return {
+    type: TASK_DELETE_ACTIVE_USER,
+    user,
+  };
+}
+
+export function setActiveUsersAction(users) {
+  return {
+    type: TASK_SET_ACTIVE_USERS,
+    users,
+  };
+}
+
+export function setConsoleHeightAction(height) {
   return {
     type: TASK_SET_CONSOLE_HEIGHT,
     height,
   };
 }
 
-export function consoleDoubleClick() {
+export function consoleDoubleClickAction() {
   return {
     type: TASK_CONSOLE_DOUBLE_CLICK,
   };

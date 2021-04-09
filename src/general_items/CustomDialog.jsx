@@ -11,7 +11,12 @@ export default function CustomDialog({
   icon, title, children, onCancel, isOpen, onAction, actionText,
 }) {
   return (
-    <Dialog open={isOpen} style={{ bottom: '20%' }} id="general_items_CustomDialog_Dialog">
+    <Dialog
+      open={isOpen}
+      style={{ bottom: '20%' }}
+      id="general_items_CustomDialog_Dialog"
+      onClose={onCancel}
+    >
       <div style={{
         ...FONTS.H2, display: 'flex', marginTop: 15, justifyContent: 'center',
       }}
@@ -22,27 +27,30 @@ export default function CustomDialog({
       <DialogContent>
         {children}
       </DialogContent>
-      <DialogActions>
-        <Button
-          style={{ ...mainStyle.OUTLINED_BUTTON_STYLE, color: COLORS.BUTTON_BLUE, width: 150 }}
-          onClick={onCancel}
-          id="general_items_CustomDialog_Dialog_CancelButton"
-        >
-          Cancel
-        </Button>
-        <Button
-          style={{
-            ...mainStyle.OUTLINED_BUTTON_STYLE,
-            color: COLORS.BUTTON_BLUE,
-            width: 150,
-            marginRight: 15,
-          }}
-          onClick={onAction}
-          id="general_items_CustomDialog_Dialog_ActionButton"
-        >
-          {actionText}
-        </Button>
-      </DialogActions>
+      {onAction === undefined ? null
+        : (
+          <DialogActions>
+            <Button
+              style={{ ...mainStyle.OUTLINED_BUTTON_STYLE, color: COLORS.BUTTON_BLUE, width: 150 }}
+              onClick={onCancel}
+              id="general_items_CustomDialog_Dialog_CancelButton"
+            >
+              Cancel
+            </Button>
+            <Button
+              style={{
+                ...mainStyle.OUTLINED_BUTTON_STYLE,
+                color: COLORS.BUTTON_BLUE,
+                width: 150,
+                marginRight: 15,
+              }}
+              onClick={onAction}
+              id="general_items_CustomDialog_Dialog_ActionButton"
+            >
+              {actionText}
+            </Button>
+          </DialogActions>
+        )}
     </Dialog>
   );
 }

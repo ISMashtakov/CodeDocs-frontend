@@ -4,7 +4,7 @@ import Box from '@material-ui/core/Box';
 
 import COLORS from '../style/colors';
 import FONTS from '../style/fonts';
-import { setConsoleHeight, consoleDoubleClick } from './actions';
+import { setConsoleHeightAction, consoleDoubleClickAction } from './actions';
 
 export const CONSOLE_HEADER_HEIGHT = 40;
 export const CONSOLE_BOTTOM_SPACE = 0;
@@ -15,7 +15,7 @@ let mouseDownY = null;
 let mouseMoveListener = null;
 let mouseUpListener = null;
 let startConsoleHeight = 0;
-function Console({ consoleHeight, setConsoleHeightDispatched, consoleDoubleClickDispatched }) {
+function Console({ consoleHeight, setConsoleHeight, consoleDoubleClick }) {
   let onMouseMove = null;
   let onMouseUp = null;
 
@@ -35,7 +35,7 @@ function Console({ consoleHeight, setConsoleHeightDispatched, consoleDoubleClick
   onMouseMove = React.useCallback((e) => {
     if (!dragging) return;
     const delta = e.pageY - mouseDownY;
-    setConsoleHeightDispatched(startConsoleHeight - delta);
+    setConsoleHeight(startConsoleHeight - delta);
     e.stopPropagation();
     e.preventDefault();
   });
@@ -52,7 +52,7 @@ function Console({ consoleHeight, setConsoleHeightDispatched, consoleDoubleClick
 
   React.useEffect(() => {
     function handleResize() {
-      setConsoleHeightDispatched(consoleHeight);
+      setConsoleHeight(consoleHeight);
     }
 
     window.addEventListener('resize', handleResize);
@@ -63,7 +63,7 @@ function Console({ consoleHeight, setConsoleHeightDispatched, consoleDoubleClick
       position: 'absolute', bottom: CONSOLE_BOTTOM_SPACE, height: consoleHeight, left: 70, right: 97,
     }}
     >
-      <div style={{ height: CONSOLE_HEADER_HEIGHT, backgroundColor: COLORS.GRAY2, cursor: 'ns-resize' }} onMouseDown={onMouseDown} onDoubleClick={consoleDoubleClickDispatched}>
+      <div style={{ height: CONSOLE_HEADER_HEIGHT, backgroundColor: COLORS.GRAY2, cursor: 'ns-resize' }} onMouseDown={onMouseDown} onDoubleClick={consoleDoubleClick}>
         <span style={{
           ...FONTS.H3, color: COLORS.TEXT_GRAY, position: 'relative', left: 27, top: 7,
         }}
@@ -87,6 +87,6 @@ function mapToState(state) {
 }
 
 export default connect(mapToState, {
-  setConsoleHeightDispatched: setConsoleHeight,
-  consoleDoubleClickDispatched: consoleDoubleClick,
+  setConsoleHeight: setConsoleHeightAction,
+  consoleDoubleClick: consoleDoubleClickAction,
 })(Console);

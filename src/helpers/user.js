@@ -6,13 +6,41 @@ const USER_SETTING_IN_LOCALSTORAGE = 'USER_SETTINGS';
 
 export class User {
   constructor() {
+    this.id = null;
     this.color = null;
     this.username = null;
     this.mail = null;
+    this.access = null;
+    this.channel = null;
   }
 
   get shortName() {
     return this.username[0];
+  }
+
+  get isOwner() {
+    return this.access === ACCESS_TYPES.OWNER;
+  }
+
+  get isEditor() {
+    return this.access === ACCESS_TYPES.EDITOR;
+  }
+
+  get isViewer() {
+    return this.access === ACCESS_TYPES.VIEWER;
+  }
+
+  static decodeDict(data) {
+    const returnUser = new User();
+    const { user } = data;
+    returnUser.access = user.access;
+    returnUser.channel = data.channel_name;
+    returnUser.id = user.user.id;
+    returnUser.username = user.user.username;
+    returnUser.mail = user.user.email;
+    returnUser.color = user.user.account_color;
+
+    return returnUser;
   }
 
   toDict() {
@@ -107,11 +135,7 @@ export class MainUser extends User {
   }
 
   addFile(id, filename, language) {
-    const file = new File();
-    file.name = filename;
-    file.id = id;
-    file.access = ACCESS_TYPES.OWNER;
-    file.language = language;
+    const file = new File(id, filename, language, ACCESS_TYPES.OWNER);
     if (this.filesIsUpdated) {
       this.files.push(file);
     }

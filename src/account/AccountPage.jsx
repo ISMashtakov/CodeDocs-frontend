@@ -7,11 +7,7 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import TextField from '@material-ui/core/TextField';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import { useSnackbar } from 'notistack';
 
 import { MainUser } from '../helpers/user';
@@ -25,11 +21,11 @@ import Avatar from '../general_items/Avatar';
 import ChangePasswordWindow from './ChangePasswordWindow';
 import ChangeEmailWindow from './ChangeEmailWindow';
 import ChangeUsernameWindow from './ChangeUsernameWindow';
-import SelectWithoutBorder from '../general_items/SelectWithoutBorder';
 import { DOWNLOAD_STATE } from '../helpers/general_helpers';
 import usersApi from '../helpers/users_helper';
 import CustomDialog from '../general_items/CustomDialog';
 import removeFileIcon from '../images/icons/file_remove_blue.png';
+import FileCreateField from '../general_items/FileCreateField';
 
 const RIGHT_ARROW_STYLE = {
   width: 12,
@@ -214,7 +210,7 @@ const FileRow = connect(mapStateToPropsFileRow, {
   }
 
   return (
-    <TableRow onClick={onClick} onDoubleClick={() => {}} style={{ ...(selected ? { backgroundColor: COLORS.GRAY2 } : {}), cursor: 'pointer' }}>
+    <TableRow onClick={onClick} onDoubleClick={() => file.open()} style={{ ...(selected ? { backgroundColor: COLORS.GRAY2 } : {}), cursor: 'pointer' }}>
       <TableCell style={{ ...FILE_ROW_STYLE }}><img src={file.icon} alt="logo" style={{ height: 24, width: 'auto' }} /></TableCell>
       <TableCell style={{ ...FILE_ROW_STYLE, width: 188, wordBreak: 'break-all' }}>{file.name}</TableCell>
       <TableCell style={{ ...FILE_ROW_STYLE }}>{file.language}</TableCell>
@@ -224,21 +220,6 @@ const FileRow = connect(mapStateToPropsFileRow, {
     </TableRow>
   );
 });
-
-function LanguageSelect({ language, onChange }) {
-  return (
-    <FormControl style={{ backgroundColor: COLORS.WHITE }}>
-      <SelectWithoutBorder
-        style={{ width: 120 }}
-        value={language}
-        onChange={onChange}
-      >
-        <MenuItem value="python">Python3</MenuItem>
-        <MenuItem value="js">JS</MenuItem>
-      </SelectWithoutBorder>
-    </FormControl>
-  );
-}
 
 function mapStateToPropsNewFilesPanel(state) {
   return {
@@ -276,27 +257,12 @@ const NewFilesPanel = connect(mapStateToPropsNewFilesPanel, {
       backgroundColor: COLORS.WHITE, marginTop: 30, width: 651, padding: 20,
     }}
     >
-      <TextField
+      <FileCreateField
         id="account_AccountPage_FilesPanel_filenameTextField"
-        style={{ width: 479 }}
-        label="Filename"
-        value={filename}
-        variant="outlined"
-        onChange={(event) => setFilename(event.target.value)}
-        InputProps={{
-          // style: { height: 46 },
-          endAdornment:
-  <InputAdornment position="end">
-    <LanguageSelect
-      language={language}
-      onChange={(event) => { setLanguage(event.target.value); }}
-    />
-  </InputAdornment>,
-
-        }}
-        InputLabelProps={{
-          // style: {transform: "translate(14px, 15px) scale(1)"},
-        }}
+        filename={filename}
+        onChangeFilename={(event) => setFilename(event.target.value)}
+        language={language}
+        onChangeLanguage={(event) => { setLanguage(event.target.value); }}
       />
       <Button
         id="account_AccountPage_FilesPanel_createFileButton"

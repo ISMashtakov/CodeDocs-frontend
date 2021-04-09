@@ -1,6 +1,12 @@
 class UrlParams {
-  constructor(params) {
-    this.params = params;
+  get params() {
+    const { href } = window.location;
+    const params = href.slice(href.indexOf('?') + 1);
+    return new URLSearchParams(params);
+  }
+
+  get linkParts() {
+    return window.location.href.split('/');
   }
 
   get(name) {
@@ -18,14 +24,14 @@ class UrlParams {
   getToken() {
     return this.params.get('token');
   }
+
+  getFileToken() {
+    const parts = this.linkParts;
+    const fileIndex = parts.indexOf('file');
+    return parts[fileIndex + 1];
+  }
 }
 
-function getURLSeatchParams(href = null) {
-  if (href === null) href = window.location.href;
-  const params = href.slice(href.indexOf('?') + 1);
-  return new URLSearchParams(params);
-}
-
-const urlParams = new UrlParams(getURLSeatchParams());
+const urlParams = new UrlParams();
 
 export default urlParams;

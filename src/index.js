@@ -9,7 +9,7 @@ import SignPage from './sign/SignPage';
 import DocumentPage from './workspace/DocumentPage';
 import MailActivatePage from './sign/MailActivatePage';
 import AccountPage from './account/AccountPage';
-import {LOGIN_PAGE_NAME, SIGNUP_PAGE_NAME, WORKSPACE_PAGE_NAME, ACTIVATE_PAGE_NAME, ACCOUNT_PAGE_NAME} from './constants'
+import {LOGIN_PAGE_NAME, SIGNUP_PAGE_NAME, FILE_PAGE_NAME, ACTIVATE_PAGE_NAME, ACCOUNT_PAGE_NAME} from './constants'
 
 
 function App(){
@@ -30,7 +30,7 @@ function App(){
           <Route path={`/${SIGNUP_PAGE_NAME}`}> 
             <SignPage/>
           </Route>
-          <Route path={`/${WORKSPACE_PAGE_NAME}`}> 
+          <Route path={`/${FILE_PAGE_NAME}`}> 
             <DocumentPage/>
           </Route>
           <Route path={`/${ACTIVATE_PAGE_NAME}`}> 
@@ -39,7 +39,7 @@ function App(){
           <Route path={`/${ACCOUNT_PAGE_NAME}`}> 
             <AccountPage/>
           </Route>
-          <Redirect from='/' to={`/${ACCOUNT_PAGE_NAME}`} />
+          <Redirect from='/' to={`/${FILE_PAGE_NAME}`} />
         </Switch>
       </Router>
     </Provider>
