@@ -1,6 +1,7 @@
 import {
   TASK_SET_TEXT, TASK_SET_CONSOLE_HEIGHT, TASK_CONSOLE_DOUBLE_CLICK, TASK_SET_FILE,
   TASK_ADD_ACTIVE_USER, TASK_DELETE_ACTIVE_USER, TASK_SET_ACTIVE_USERS, TASK_SET_ALL_USERS,
+  TASK_ADD_USER,
 } from './actions';
 import { CONSOLE_HEADER_HEIGHT } from './Console';
 
@@ -62,6 +63,10 @@ export default function documentData(state = START_STATE, action) {
 
     case TASK_SET_ALL_USERS:
       return { ...state, allUsers: action.users };
+
+    case TASK_ADD_USER:
+      if (state.allUsers.some((user) => user.username === action.user.username)) return state;
+      return { ...state, allUsers: state.allUsers.concat([action.user]) };
 
     default:
       return state;

@@ -1,7 +1,7 @@
 import store from '../redux/store';
 import {
   setFileAction, addActiveUserAction, deleteActiveUserAction,
-  setActiveUsersAction, setAllUsersAction,
+  setActiveUsersAction, setAllUsersAction, addUserAction,
 } from './actions';
 import { setMainUserAction } from '../redux/actions';
 import File from '../helpers/file';
@@ -15,18 +15,16 @@ function channelName(body) {
 }
 
 function newUser(body) {
-  const { generalData, documentData } = store.getState();
+  const { generalData } = store.getState();
   const user = User.decodeDict(body.user);
   if (user.username === generalData.mainUser.username) {
     generalData.mainUser.access = user.access;
     store.dispatch(setMainUserAction(generalData.mainUser));
   } else {
     store.dispatch(addActiveUserAction(user));
-    if (!documentData.allUsers.some((item) => user.username === item.username)) {
-      const users = documentData.allUsers.concat([user]);
-      store.dispatch(setAllUsersAction(users));
-    }
   }
+
+  store.dispatch(addUserAction(user));
 }
 
 // On end connection
