@@ -1,7 +1,7 @@
 import {diff_match_patch} from '../packages/text_differents';
 
 
-class Operation{
+export class Operation{
     getMessage(){
     }
     
@@ -11,9 +11,20 @@ class Operation{
         }
         return this
     }
+
+    applyToStr(str){
+    }
+
+    get length(){
+        return this.text.length
+    }
+    
+    get end(){
+        return this.pos + this.length
+    }
 }
 
-class Insert extends Operation{
+export class Insert extends Operation{
     constructor(pos, text){
         super()
         this.pos = pos
@@ -36,15 +47,38 @@ class Insert extends Operation{
                 return new Insert(this.pos, this.text)
             }
             else {
-                return new Insert(this.pos + oper.text.length, this.text)
+                return new Insert(this.pos + oper.length, this.text)
             }
         }
-        
+        else if (oper instanceof Delete){
+            if(this.pos <= oper.pos){
+                return new Insert(this.pos, this.text)
+            }
+            else if(this.pos >= oper.end){
+                return new Insert(this.pos - oper.length, this.text)
+            }
+            else{
+                return new Insert(oper.pos, this.text)
+            }
+        }
+        else if (oper instanceof Neutral){
+            return new Insert(this.pos, this.text)
+        }
+        else{
+            throw Error(`Illegal operation ${oper}`)
+        }
+    }
 
+    applyToStr(str){
+        if (str.length < this.pos){
+            throw Error('Position for insert not exist')
+        }
+
+        return str.slice(0, this.pos) + this.text + str.slice(this.pos)
     }
 }
 
-class Delete extends Operation{
+export class Delete extends Operation{
     constructor(pos, text){
         super()
         this.pos = pos
@@ -58,13 +92,78 @@ class Delete extends Operation{
             text: this.text
         }
     }
+
+    changeByOperation(oper){
+        super.changeByOperation(oper);
+
+        if (oper instanceof Insert){
+            if (oper.pos <= this.pos){
+                return new Delete(this.pos + oper.length, this.text)
+            }
+            else if (this.end > oper.pos){
+                return new Delete(
+                    this.pos, 
+                    this.text.slice(0, oper.pos - this.pos) + oper.text + this.text.slice(oper.pos - this.pos)
+                )
+            }
+            else {
+                return new Delete(this.pos, this.text)
+            }
+        }
+        
+        else if (oper instanceof Delete){
+            if (this.end <= oper.pos){
+                return new Delete(this.pos, this.text)
+            }
+            else if (this.pos < oper.pos && this.end <= oper.end){
+                return new Delete(this.pos, this.text.slice(0, oper.pos - this.pos))
+            }
+            else if (this.pos < oper.pos && this.end > oper.end){
+                return new Delete(
+                    this.pos, 
+                    this.text.slice(0, oper.pos - this.pos) + this.text.slice(oper.end - this.pos)
+                )
+            }
+            else if (this.end <= oper.end){
+                return new Neutral()
+            }
+            else if (this.pos < oper.end){
+                return new Delete(oper.pos, this.text.slice(oper.end - this.pos))
+            }
+            else {
+                return new Delete(this.pos - oper.length, this.text)
+            }
+        }
+        else if (oper instanceof Neutral){
+            return new Delete(this.pos, this.text)
+        }
+        else{
+            throw Error(`Illegal operation ${oper}`)
+        }
+    }
+
+    applyToStr(str){
+        if (str.slice(this.pos, this.pos + this.length) !== this.text){
+            throw Error('Pattern for delete not exist')
+        }
+        return str.slice(0, this.pos) + str.slice(this.end) 
+    }
 }
 
-class Neutral extends Operation{
+export class Neutral extends Operation{
     getMessage(){
         return{
             type: "neutral"
         }
+    }
+
+    changeByOperation(oper){
+        super.changeByOperation(oper);
+        return new Neutral()
+    }
+
+    applyToStr(str){
+        return str
     }
 }
 
