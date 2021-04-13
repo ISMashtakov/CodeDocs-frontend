@@ -144,7 +144,7 @@ class UsersApi {
           return { reason: '', isGood: false };
       }
     } catch (err) {
-      return { reason: [], isGood: false };
+      return { reason: '', isGood: false };
     }
   }
 }
