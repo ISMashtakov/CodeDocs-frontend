@@ -14,16 +14,19 @@ export const CHECK_MAIL_URL = `${MAIN_AUTH_URL}/check_email/`;
 const PAGE_AFTER_LOGIN_IN_LOCAL_STORAGE = 'PAGE_AFTER_LOGIN';
 
 export function toLogin() {
-  localStorage.setItem(PAGE_AFTER_LOGIN_IN_LOCAL_STORAGE, {
+  localStorage.setItem(PAGE_AFTER_LOGIN_IN_LOCAL_STORAGE, JSON.stringify({
     pathname: window.location.pathname,
     search: window.location.search,
-  });
+  }));
   openPage(`/${LOGIN_PAGE_NAME}`);
 }
 
 export function getAfterLoginPage() {
   const page = localStorage.getItem(PAGE_AFTER_LOGIN_IN_LOCAL_STORAGE);
-  if (page) return page;
+  if (page) {
+    const data = JSON.parse(page);
+    return data.pathname + data.search;
+  }
   return `/${ACCOUNT_PAGE_NAME}`;
 }
 

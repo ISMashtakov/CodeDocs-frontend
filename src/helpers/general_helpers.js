@@ -6,5 +6,6 @@ export const DOWNLOAD_STATE = {
 };
 
 export function openPage(page) {
-  window.location.href = page;
+  if (page[0] !== '/') page = `/${page}`;
+  window.location.href = window.location.origin + page;
 }
