@@ -1,5 +1,5 @@
 import {
-  TASK_SET_TEXT, TASK_SET_CONSOLE_HEIGHT, TASK_CONSOLE_DOUBLE_CLICK, TASK_SET_FILE,
+  TASK_SET_CONSOLE_HEIGHT, TASK_CONSOLE_DOUBLE_CLICK, TASK_SET_FILE,
   TASK_ADD_ACTIVE_USER, TASK_DELETE_ACTIVE_USER, TASK_SET_ACTIVE_USERS, TASK_SET_ALL_USERS,
   TASK_ADD_USER,
 } from './actions';
@@ -11,7 +11,6 @@ const MIN_CONSOLE_HEIGHT = CONSOLE_HEADER_HEIGHT;
 function getStartState() {
   return {
     activeUsers: [],
-    text: '',
     file: null,
     consoleHeight: 100,
     allUsers: [],
@@ -26,9 +25,6 @@ function getMaxConsoleHeight() {
 
 export default function documentData(state = START_STATE, action) {
   switch (action.type) {
-    case TASK_SET_TEXT:
-      return { ...state, text: action.text };
-
     case TASK_SET_CONSOLE_HEIGHT:
       if (action.height < MIN_CONSOLE_HEIGHT) {
         return { ...state, consoleHeight: MIN_CONSOLE_HEIGHT };
