@@ -8,7 +8,7 @@ import FONTS from '../style/fonts';
 import textEditor from './text_editor'
 import { HEADER_HEIGHT } from './Header';
 import { CONSOLE_BOTTOM_SPACE, CONSOLE_TOP_SPACE } from './Console';
-import { getOperation } from './operations'
+import { getOperations } from './operations'
 
 import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/theme-github';
@@ -16,8 +16,10 @@ import 'ace-builds/src-noconflict/theme-github';
 function Workspace({ consoleHeight}) {
 
   function onChange(newText) {
+    const oldText = textEditor.text;
     textEditor.text = newText;
-    
+    const operations = getOperations(oldText, newText)
+    operations.forEach(textEditor.addOperation)
   }
 
 
