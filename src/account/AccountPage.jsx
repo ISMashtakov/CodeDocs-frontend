@@ -411,7 +411,7 @@ function AccountPage({ mainUser, setMainUser }) {
     <form autoComplete="off">
       <div
         style={{
-          width: '100%', background: COLORS.LIGHT_BLUE, minWidth: 1254,
+          width: '100%', background: COLORS.LIGHT_BLUE, minWidth: 1254, minHeight: '100vh',
         }}
         id="account_AccountPage_div"
       >

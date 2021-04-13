@@ -160,7 +160,7 @@ function Header({
       </div>
 
       {(user)
-        ? <Avatar id="workspace_Header_MyAvatar" user={user} style={{ float: 'right', marginRight: 32, marginTop: 12 }} onClick={(event) => setAnchorElAccount(event.currentTarget)} />
+        ? <Avatar id="workspace_Header_MyAvatar" user={user} style={{ float: 'right', marginRight: 32, marginTop: 12 }} onClick={(event) => setAnchorElAccount(event.currentTarget)} showTip />
         : null}
       <Button
         style={{
@@ -180,7 +180,7 @@ function Header({
                   display: 'inline-block', position: 'relative', left: 10 * (activeUsers.length - i - 1), zIndex: i,
                 }}
               >
-                <Avatar user={item} id={`workspace_Header_userAvatar_${item.username}`} />
+                <Avatar showTip user={item} id={`workspace_Header_userAvatar_${item.username}`} />
               </div>
             ))
           }

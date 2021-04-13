@@ -13,16 +13,16 @@ const CustomTooltip = withStyles({
 })(Tooltip);
 
 function Avatar({
-  user, style, onClick, id,
+  user, style, onClick, id, showTip = false,
 }) {
   return (
     <CustomTooltip
-      title={(
+      title={(!showTip) ? '' : (
         <div>
           <div style={{ ...FONTS.CAPTION, color: COLORS.WHITE, textAlign: 'center' }}>{user.username}</div>
           <div style={{ ...FONTS.SUBTITLE, color: COLORS.TEXT_GRAY, textAlign: 'center' }}>{`(${ACCESS_TYPES_NUMBER_TO_STRING[user.access]})`}</div>
         </div>
-  )}
+      )}
     >
       <div
         id={id}

@@ -69,9 +69,9 @@ function changeUserAccess(body) {
     generalData.mainUser.access = user.access;
     store.dispatch(setMainUserAction(generalData.mainUser));
   } else {
-    const users = documentData.active_users.map((item) => (
+    const users = documentData.activeUsers.map((item) => (
       (item.username === user.username) ? user : item));
-    store.dispatch(setActiveUsers(users));
+    store.dispatch(setActiveUsersAction(users));
   }
   const users = documentData.allUsers.map((item) => (
     (item.username === user.username) ? user : item));
