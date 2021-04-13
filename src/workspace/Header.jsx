@@ -46,7 +46,7 @@ function CreateFileDialog({ user, open, onClose }) {
     const response = await usersApi.createFile(user, filename, language);
     if (response.isGood) {
       const file = new File(response.id, filename, language, ACCESS_TYPES.OWNER);
-      file.open();
+      file.open(user);
     } else if (response.reason.length > 0) {
       enqueueSnackbar({ text: response.reason.join('\n'), type: 'error' });
     }
@@ -59,7 +59,7 @@ function CreateFileDialog({ user, open, onClose }) {
       onCancel={onClose}
       isOpen={open}
       onAction={clickToCreate}
-      actionText="Create and open"
+      actionText="Create"
     >
       <div style={{ margin: '40px 0px' }}>
         <FileCreateField
@@ -74,7 +74,13 @@ function CreateFileDialog({ user, open, onClose }) {
   );
 }
 
-function FileSettingsDialog({ open, onClose, file }) {
+function stateToPropsMap(state) {
+  return {
+    file: state.documentData.file,
+  };
+}
+
+const FileSettingsDialog = connect(stateToPropsMap)(({ open, onClose, file }) => {
   const [filename, setFilename] = React.useState('');
   const [language, setLanguage] = React.useState('python');
   const [needUpdate, setNeedUpdate] = React.useState(true);
@@ -82,7 +88,7 @@ function FileSettingsDialog({ open, onClose, file }) {
 
   function close() {
     onClose();
-    setNeedUpdate(true);
+    setTimeout(() => setNeedUpdate(true), 200);
   }
 
   async function clickToSave() {
@@ -122,7 +128,7 @@ function FileSettingsDialog({ open, onClose, file }) {
       </div>
     </CustomDialog>
   );
-}
+});
 
 function Header({
   user, file, activeUsers,
@@ -132,6 +138,7 @@ function Header({
   const [isOpenShareDialog, setIsOpenShareDialog] = React.useState(false);
   const [anchorElSettings, setAnchorElSettings] = React.useState(null);
   const [anchorElAccount, setAnchorElAccount] = React.useState(null);
+
   return (
     <div id="workspace_Header" style={{ width: '100%', height: HEADER_HEIGHT, background: COLORS.WHITE }}>
       <img
@@ -173,7 +180,7 @@ function Header({
                   display: 'inline-block', position: 'relative', left: 10 * (activeUsers.length - i - 1), zIndex: i,
                 }}
               >
-                <Avatar user={item} id={`workspace_Header_userAvatar_${item.channel}`} />
+                <Avatar user={item} id={`workspace_Header_userAvatar_${item.username}`} />
               </div>
             ))
           }
@@ -187,7 +194,6 @@ function Header({
       <FileSettingsDialog
         open={isOpenFileSettingsDialog}
         onClose={() => setIsOpenFileSettingsDialog(false)}
-        file={file}
       />
       <ShareDialog open={isOpenShareDialog} onClose={() => setIsOpenShareDialog(false)} />
       <Popover
@@ -233,9 +239,9 @@ function Header({
       >
         <div style={{ padding: 10, width: 154 }}>
           <div style={{ ...FONTS.H3, color: COLORS.BLACK }}>{user.username}</div>
-          <Button id="workspace_Header_mainAvatarPopover_ViewProfileButton" style={{ ...POPOVER_BUTTON_STYLE, padding: 0 }} onClick={() => { openPage(ACCOUNT_PAGE_NAME); }}>View profile</Button>
+          <Button id="workspace_Header_mainAvatarPopover_ViewProfileButton" style={{ ...POPOVER_BUTTON_STYLE, padding: 0, justifyContent: 'left' }} fullWidth onClick={() => { openPage(ACCOUNT_PAGE_NAME); }}>View profile</Button>
           <Divider />
-          <Button id="workspace_Header_mainAvatarPopover_LogoutButton" style={{ ...POPOVER_BUTTON_STYLE, padding: 0 }} onClick={() => { toLogin(); }}>Log out</Button>
+          <Button id="workspace_Header_mainAvatarPopover_LogoutButton" style={{ ...POPOVER_BUTTON_STYLE, padding: 0, justifyContent: 'left' }} fullWidth onClick={() => { toLogin(); }}>Log out</Button>
         </div>
       </Popover>
     </div>
@@ -245,8 +251,10 @@ function mapToState(state) {
   return {
     user: state.generalData.mainUser,
     file: state.documentData.file,
+
     activeUsers: state.documentData.activeUsers,
     countActiveUsers: state.documentData.activeUsers.length,
+
   };
 }
 export default connect(mapToState)(Header);

@@ -20,6 +20,7 @@ function App(){
         body {
           margin: 0px;
           padding: 0px;
+          height: 100%;
         }
       `}</style>
       <Router>
@@ -39,7 +40,7 @@ function App(){
           <Route path={`/${ACCOUNT_PAGE_NAME}`}> 
             <AccountPage/>
           </Route>
-          <Redirect from='/' to={`/${FILE_PAGE_NAME}`} />
+          <Redirect from='/' to={`/${ACCOUNT_PAGE_NAME}`} />
         </Switch>
       </Router>
     </Provider>

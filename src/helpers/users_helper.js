@@ -1,6 +1,5 @@
 import { get, post } from './request_helper';
 import { SERVER_URL } from '../constants';
-import File from './file';
 
 export const MAIN_AUTH_URL = `${SERVER_URL}/auth`;
 export const GET_USER_URL = `${MAIN_AUTH_URL}/users/me/`;
@@ -11,6 +10,7 @@ export const MAIN_FILES_URL = `${SERVER_URL}/file`;
 export const GET_MY_FILES_URL = `${MAIN_FILES_URL}/my`;
 export const CREATE_FILE_URL = `${MAIN_FILES_URL}/create_file/`;
 export const DELETE_FILE_URL = `${MAIN_FILES_URL}/delete_file/`;
+export const OPEN_FILE_URL = `${MAIN_FILES_URL}/open_file/`;
 
 class UsersApi {
   async getMe(user) {
@@ -84,8 +84,7 @@ class UsersApi {
   async getMyFiles(user) {
     try {
       const result = await get(GET_MY_FILES_URL, undefined, user);
-      const json = await result.json();
-      return json.map((item) => File.dictEncode(item));
+      return await result.json();
     } catch (err) {
       return null;
     }
@@ -124,6 +123,25 @@ class UsersApi {
           return { isGood: true };
         default:
           return { reason: [], isGood: false };
+      }
+    } catch (err) {
+      return { reason: [], isGood: false };
+    }
+  }
+
+  async getFileLink(id, user) {
+    const params = {
+      file_id: id,
+    };
+    try {
+      const result = await post(OPEN_FILE_URL, params, user);
+      switch (result.status) {
+        case 404:
+          return { reason: 'Such file does not exist', isGood: false };
+        case 200:
+          return { link: await result.text(), isGood: true };
+        default:
+          return { reason: '', isGood: false };
       }
     } catch (err) {
       return { reason: [], isGood: false };

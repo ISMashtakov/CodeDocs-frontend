@@ -48,7 +48,7 @@ export default function documentData(state = START_STATE, action) {
       return { ...state, file: action.file };
 
     case TASK_ADD_ACTIVE_USER:
-      if (state.activeUsers.some((user) => user.channel === action.user.channel)) return state;
+      if (state.activeUsers.some((user) => user.username === action.user.username)) return state;
       return { ...state, activeUsers: state.activeUsers.concat([action.user]) };
 
     case TASK_DELETE_ACTIVE_USER:

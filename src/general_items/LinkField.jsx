@@ -9,11 +9,24 @@ import IconButton from '@material-ui/core/IconButton';
 import COLORS from '../style/colors';
 import FONTS from '../style/fonts';
 import SelectWithoutBorder from './SelectWithoutBorder';
+import { ACCESS_TYPES_NUMBER_TO_STRING, ACCESS_TYPES } from '../helpers/file';
 
 export function AccessSelect({ access, onChange, canEdit = true }) {
+  const accessMap = JSON.parse(JSON.stringify(ACCESS_TYPES_NUMBER_TO_STRING));
+  if (access !== ACCESS_TYPES.OWNER) {
+    delete accessMap[ACCESS_TYPES.OWNER];
+  }
+
   const style = { ...FONTS.SUBTITLE, height: 50 };
-  if (!canEdit) {
-    <span style={style}>{access === 0 ? 'View' : 'Edit'}</span>;
+  if (!canEdit || access === ACCESS_TYPES.OWNER) {
+    return (
+      <div style={{
+        ...style, height: 'auto', paddingTop: 15, marginRight: 16,
+      }}
+      >
+        {accessMap[access]}
+      </div>
+    );
   }
 
   return (
@@ -23,8 +36,11 @@ export function AccessSelect({ access, onChange, canEdit = true }) {
         onChange={onChange}
         style={style}
       >
-        <MenuItem style={style} value={0}>View</MenuItem>
-        <MenuItem style={style} value={1}>Edit</MenuItem>
+        {Object.keys(accessMap).map((item) => (
+          <MenuItem style={style} key={item} value={item}>
+            {accessMap[item]}
+          </MenuItem>
+        ))}
       </SelectWithoutBorder>
     </FormControl>
   );

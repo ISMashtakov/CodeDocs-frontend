@@ -1,14 +1,13 @@
 import { getFileJson } from './data';
 
-export function getNewUserMessage(channel_name = '0') {
+export function getNewUserMessage(username) {
   return {
     type: 'new_user',
-    channel_name,
     user: {
       access: 0,
       user: {
         id: 0,
-        username: 'username',
+        username,
         email: 'email',
         account_color: 'red',
       },

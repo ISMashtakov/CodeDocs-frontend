@@ -16,7 +16,7 @@ function UserRow({ user, mainUser }) {
       <div style={{ display: 'inline-block', float: 'right' }}>
         <AccessSelect
           access={user.access}
-          canEdit={!mainUser.isViewer}
+          canEdit={mainUser.username !== user.username && user.access <= mainUser.access}
           onChange={(event) => changeUserAccess(user.id, event.target.value)}
         />
       </div>
@@ -30,6 +30,8 @@ function ShareDialog({
   async function onChangeDefaultAccess(event) {
     changeLinkAccess(event.target.value);
   }
+
+  if (file === null) return null;
 
   return (
     <CustomDialog
@@ -45,7 +47,7 @@ function ShareDialog({
           onChangeAccess={onChangeDefaultAccess}
           mainUser={mainUser}
         />
-        {allUsers.map((user) => <UserRow user={user} key={user.channel} mainUser={mainUser} />)}
+        {allUsers.map((user) => <UserRow user={user} key={user.username} mainUser={mainUser} />)}
       </div>
     </CustomDialog>
   );
@@ -56,6 +58,10 @@ function mapStateToProps(state) {
     mainUser: state.generalData.mainUser,
     allUsers: state.documentData.allUsers,
     file: state.documentData.file,
+    ...(state.documentData.file !== null ? {
+      filename: state.documentData.file.name,
+      defaultAccess: state.documentData.file.defaultAccess,
+    } : {}),
   };
 }
 

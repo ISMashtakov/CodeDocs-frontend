@@ -1,55 +1,42 @@
 import receive from './connectionReceiver';
-import { getFileInfoMessage, getAllUsersMessage } from '../__test_helpers__/messagesData';
+import { CHANNELS_SERVER_URL } from '../constants';
+import urlParams from '../helpers/url_helper';
 
 class Connection {
   constructor() {
     this.socket = null;
+    this.user = null;
+    this.queueMessage = [];
   }
 
   get isConnect() {
-    return this.socket !== null;
-  }
-
-  onOpen() {
-    console.log('Соединение установлено.');
-  }
-
-  onClose(event) {
-    if (event.wasClean) {
-      console.log('Соединение закрыто чисто');
-    } else {
-      console.log('Обрыв соединения'); // например, "убит" процесс сервера
-    }
-    console.log(`Код: ${event.code} причина: ${event.reason}`);
+    return this.socket !== null && this.socket.readyState === this.socket.OPEN;
   }
 
   onMessage(event) {
     const data = JSON.parse(event.data);
+    // console.log(data); // TODO DELETE IT
     receive(data);
   }
 
-  onError(error) {
-    console.error(`Ошибка ${error.message}`);
+  connect(user) {
+    this.user = user;
+    const url = `${CHANNELS_SERVER_URL}/files/${urlParams.getFileToken()}/${this.user.accessToken}/`;
+    this.socket = new WebSocket(url);
+    this.socket.onopen = () => this.send();
+    this.socket.onclose = () => {};
+    this.socket.onmessage = this.onMessage;
+    this.socket.onerror = () => {};
   }
 
-  connect() {
-    const url = 'asd';
-    this.socket = undefined;
-    receive(getFileInfoMessage());
-    receive(getAllUsersMessage());
-    // this.socket = new WebSocket(url);
-
-    // this.socket.onopen = this.onOpen
-    // this.socket.onclose = this.onClose
-    // this.socket.onmessage = this.onMessage
-    // this.socket.onerror = this.onError
-  }
-
-  send(content) {
-    if (this.socket === null) {
-      console.error('socket is null');
+  send(content = null) {
+    if (content) {
+      this.queueMessage.push(content);
     }
-    this.socket.send(content);
+    if (this.isConnect) {
+      this.queueMessage.forEach((item) => this.socket.send(item));
+      this.queueMessage = [];
+    }
   }
 }
 

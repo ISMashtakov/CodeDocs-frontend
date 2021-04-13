@@ -26,6 +26,7 @@ import usersApi from '../helpers/users_helper';
 import CustomDialog from '../general_items/CustomDialog';
 import removeFileIcon from '../images/icons/file_remove_blue.png';
 import FileCreateField from '../general_items/FileCreateField';
+import { ACCESS_TYPES_NUMBER_TO_STRING } from '../helpers/file';
 
 const RIGHT_ARROW_STYLE = {
   width: 12,
@@ -102,7 +103,7 @@ const AccountCard = connect(mapStateToPropsAccountCard, {
   return (
     <div
       style={{
-        float: 'left', backgroundColor: COLORS.WHITE, padding: '20px 15px', width: 354, height: 378, borderRadius: '6px', boxShadow: '0px 4px 14px rgba(0, 0, 0, 0.1)',
+        float: 'left', backgroundColor: COLORS.WHITE, padding: '20px 15px', width: 354, height: 378, borderRadius: '6px', boxShadow: '0px 4px 14px rgba(0, 0, 0, 0.1)', position: 'fixed',
       }}
       id="account_AccountPage_AccountCard_div"
     >
@@ -116,7 +117,7 @@ const AccountCard = connect(mapStateToPropsAccountCard, {
       <Button
         onClick={() => setChangeUsernameIsOpen(true)}
         style={{
-          ...FONTS.H1, textTransform: 'none', padding: '10px 0px 10px 26px', marginTop: 25, width: BUTTON_WIDTH, color: COLORS.TEXT_DARK_GRAY,
+          ...FONTS.H1, textTransform: 'none', padding: '10px 0px 10px 0px', marginTop: 25, width: BUTTON_WIDTH, color: COLORS.TEXT_DARK_GRAY,
         }}
         id="account_AccountPage_AccountCard_usernameButton"
       >
@@ -210,11 +211,13 @@ const FileRow = connect(mapStateToPropsFileRow, {
   }
 
   return (
-    <TableRow onClick={onClick} onDoubleClick={() => file.open()} style={{ ...(selected ? { backgroundColor: COLORS.GRAY2 } : {}), cursor: 'pointer' }}>
+    <TableRow onClick={onClick} onDoubleClick={() => file.open(mainUser)} style={{ ...(selected ? { backgroundColor: COLORS.GRAY2 } : {}), cursor: 'pointer' }}>
       <TableCell style={{ ...FILE_ROW_STYLE }}><img src={file.icon} alt="logo" style={{ height: 24, width: 'auto' }} /></TableCell>
       <TableCell style={{ ...FILE_ROW_STYLE, width: 188, wordBreak: 'break-all' }}>{file.name}</TableCell>
       <TableCell style={{ ...FILE_ROW_STYLE }}>{file.language}</TableCell>
-      <TableCell style={{ ...FILE_ROW_STYLE }}>{file.access}</TableCell>
+      <TableCell style={{ ...FILE_ROW_STYLE }}>
+        {ACCESS_TYPES_NUMBER_TO_STRING[file.access]}
+      </TableCell>
       <TableCell style={{ ...FILE_ROW_STYLE }}><FileButton /></TableCell>
       <DeleteConfirm />
     </TableRow>
@@ -309,10 +312,11 @@ const FilesPanel = connect(mapStateToPropsFilesPanel, {
     setUpdateFilesState(DOWNLOAD_STATE.DOWNLOAD);
   });
 
-  const files = (selectedTab === 0) ? mainUser.files : mainUser.myFiles;
+  let files = (selectedTab === 0) ? mainUser.files : mainUser.myFiles;
+  if (files) files = files.slice().reverse();
 
   return (
-    <div style={{ float: 'left', marginLeft: 79 }} id="account_AccountPage_FilesPanel_div">
+    <div style={{ float: 'left', marginLeft: 79 + 354 }} id="account_AccountPage_FilesPanel_div">
       <div id="account_AccountPage_FilesPanel_filetypesDiv">
         <div
           style={{
@@ -336,9 +340,10 @@ const FilesPanel = connect(mapStateToPropsFilesPanel, {
           My files
         </div>
       </div>
+      <NewFilesPanel />
       <Box
         style={{
-          backgroundColor: COLORS.WHITE, marginTop: 24, borderRadius: '6px', maxHeight: 338, width: 691,
+          bottom: 0, backgroundColor: COLORS.WHITE, marginTop: 24, borderRadius: '6px', width: 691,
         }}
         overflow="auto"
         id="account_AccountPage_FilesPanel_BoxWithTable"
@@ -366,7 +371,7 @@ const FilesPanel = connect(mapStateToPropsFilesPanel, {
           </TableBody>
         </Table>
       </Box>
-      <NewFilesPanel />
+
     </div>
   );
 });
@@ -406,7 +411,7 @@ function AccountPage({ mainUser, setMainUser }) {
     <form autoComplete="off">
       <div
         style={{
-          height: '100vh', width: '100%', background: COLORS.LIGHT_BLUE, minWidth: 1254,
+          width: '100%', background: COLORS.LIGHT_BLUE, minWidth: 1254,
         }}
         id="account_AccountPage_div"
       >
@@ -414,6 +419,7 @@ function AccountPage({ mainUser, setMainUser }) {
         <div style={{ margin: '0 auto', width: 1154 }}>
           <AccountCard />
           <FilesPanel />
+          <div style={{ clear: 'both' }} />
         </div>
         <ChangePasswordWindow />
         <ChangeEmailWindow />

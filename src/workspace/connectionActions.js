@@ -10,6 +10,11 @@ export function requestActiveUsers() {
   connection.send(data);
 }
 
+export function requestAllUsers() {
+  const data = JSON.stringify({ type: 'all_users' });
+  connection.send(data);
+}
+
 export function sendFileSettings(filename, language) {
   const data = JSON.stringify({
     type: 'change_file_config',
@@ -32,8 +37,8 @@ export function changeLinkAccess(access) {
 export function changeUserAccess(id, access) {
   const data = JSON.stringify({
     type: 'change_user_access',
-    new_access: access,
-    user_id: id,
+    new_access: access * 1,
+    another_user_id: id,
   });
   connection.send(data);
 }

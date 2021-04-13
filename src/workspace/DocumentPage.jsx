@@ -10,6 +10,7 @@ import { DOWNLOAD_STATE } from '../helpers/general_helpers';
 import { MainUser } from '../helpers/user';
 import { toLogin } from '../helpers/auth_helper';
 import connection from './Connection';
+import { requestFileInfo, requestActiveUsers, requestAllUsers } from './connectionActions';
 
 function DocumentPage({ mainUser, setMainUser, file }) {
   const [userValid, setUserValid] = React.useState(false);
@@ -18,7 +19,10 @@ function DocumentPage({ mainUser, setMainUser, file }) {
   React.useEffect(async () => {
     if (updateState === DOWNLOAD_STATE.DOWNLOAD) {
       if (!connection.isConnect) {
-        connection.connect('test_url');
+        connection.connect(mainUser);
+        requestFileInfo();
+        requestActiveUsers();
+        requestAllUsers();
       }
     }
 

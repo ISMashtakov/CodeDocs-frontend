@@ -11,7 +11,6 @@ export class User {
     this.username = null;
     this.mail = null;
     this.access = null;
-    this.channel = null;
   }
 
   get shortName() {
@@ -32,13 +31,12 @@ export class User {
 
   static decodeDict(data) {
     const returnUser = new User();
-    const { user } = data;
-    returnUser.access = user.access;
-    returnUser.channel = data.channel_name;
-    returnUser.id = user.user.id;
-    returnUser.username = user.user.username;
-    returnUser.mail = user.user.email;
-    returnUser.color = user.user.account_color;
+    const { user, access } = data;
+    returnUser.access = access;
+    returnUser.id = user.id;
+    returnUser.username = user.username;
+    returnUser.mail = user.email;
+    returnUser.color = user.account_color;
 
     return returnUser;
   }
@@ -59,6 +57,7 @@ export class MainUser extends User {
     this.refreshToken = null;
     this.lastValidCheckDate = null;
     this.files = null;
+    this.channel = null;
   }
 
   saveToLocalStorage() {
@@ -107,7 +106,7 @@ export class MainUser extends User {
   async updateFilesFromServer() {
     const data = await usersApi.getMyFiles(this);
     if (data) {
-      this.files = data;
+      this.files = data.map((item) => File.dictEncode(item));
       return true;
     }
     return false;

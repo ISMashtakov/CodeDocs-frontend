@@ -174,10 +174,11 @@ it('AccountPage render files', async () => {
   const boxWithTable = document.getElementById('account_AccountPage_FilesPanel_BoxWithTable');
   const rows = boxWithTable.querySelectorAll('tr');
   expect(rows.length).toEqual(FILES_LIST.length);
+  const REVERSED_FILES_LIST = FILES_LIST.slice().reverse();
   rows.forEach((row, i) => {
     const cells = row.querySelectorAll('td');
-    expect(cells[1].innerHTML).toContain(FILES_LIST[i].file.name);
-    expect(cells[2].innerHTML).toContain(FILES_LIST[i].file.programming_language);
+    expect(cells[1].innerHTML).toContain(REVERSED_FILES_LIST[i].file.name);
+    expect(cells[2].innerHTML).toContain(REVERSED_FILES_LIST[i].file.programming_language);
   });
 });
 
@@ -209,14 +210,15 @@ it('AccountPage delete file', async () => {
     await sleep(500);
   });
 
-  expect(fetch.mock.calls[1][1].body).toEqual('file_id=0');
+  expect(fetch.mock.calls[1][1].body).toEqual('file_id=3');
 
   const rows = document.getElementById('account_AccountPage_FilesPanel_BoxWithTable').querySelectorAll('tr');
   expect(rows.length).toEqual(FILES_LIST.length - 1);
+  const REVERSED_FILES_LIST = FILES_LIST.slice().reverse();
   rows.forEach((row, i) => {
     const cells = row.querySelectorAll('td');
-    expect(cells[1].innerHTML).toContain(FILES_LIST[i + 1].file.name);
-    expect(cells[2].innerHTML).toContain(FILES_LIST[i + 1].file.programming_language);
+    expect(cells[1].innerHTML).toContain(REVERSED_FILES_LIST[i + 1].file.name);
+    expect(cells[2].innerHTML).toContain(REVERSED_FILES_LIST[i + 1].file.programming_language);
   });
 
   expect(store.getState().generalData.mainUser.files.length).toEqual(FILES_LIST.length - 1);
@@ -252,14 +254,15 @@ it('AccountPage create file', async () => {
   expect(fetch.mock.calls[1][1].body).toEqual('name=new_filename&programming_language=python');
 
   const NEW_FILES = FILES_LIST.concat([getFileJson(15, 'new_filename')]);
+  const REVERSED_FILES_LIST = NEW_FILES.slice().reverse();
 
   const rows = document.getElementById('account_AccountPage_FilesPanel_BoxWithTable').querySelectorAll('tr');
-  expect(rows.length).toEqual(NEW_FILES.length);
+  expect(rows.length).toEqual(REVERSED_FILES_LIST.length);
   rows.forEach((row, i) => {
     const cells = row.querySelectorAll('td');
-    expect(cells[1].innerHTML).toContain(NEW_FILES[i].file.name);
-    expect(cells[2].innerHTML).toContain(NEW_FILES[i].file.programming_language);
+    expect(cells[1].innerHTML).toContain(REVERSED_FILES_LIST[i].file.name);
+    expect(cells[2].innerHTML).toContain(REVERSED_FILES_LIST[i].file.programming_language);
   });
 
-  expect(store.getState().generalData.mainUser.files.length).toEqual(NEW_FILES.length);
+  expect(store.getState().generalData.mainUser.files.length).toEqual(REVERSED_FILES_LIST.length);
 });

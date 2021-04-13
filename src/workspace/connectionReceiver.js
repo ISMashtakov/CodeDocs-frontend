@@ -15,8 +15,18 @@ function channelName(body) {
 }
 
 function newUser(body) {
-  const user = User.decodeDict(body);
-  store.dispatch(addActiveUserAction(user));
+  const { generalData, documentData } = store.getState();
+  const user = User.decodeDict(body.user);
+  if (user.username === generalData.mainUser.username) {
+    generalData.mainUser.access = user.access;
+    store.dispatch(setMainUserAction(generalData.mainUser));
+  } else {
+    store.dispatch(addActiveUserAction(user));
+    if (!documentData.allUsers.some((item) => user.username === item.username)) {
+      const users = documentData.allUsers.concat([user]);
+      store.dispatch(setAllUsersAction(users));
+    }
+  }
 }
 
 // On end connection
@@ -27,11 +37,8 @@ function deleteUser(body) {
 
 // On requests
 function fileInfo(body) {
-  const file = File.dictEncode(body.file);
+  const file = File.dictEncode(body);
   store.dispatch(setFileAction(file));
-  const { generalData } = store.getState();
-  generalData.mainUser.access = body.file.access;
-  store.dispatch(setMainUserAction(generalData.mainUser));
 }
 
 function setAllUsers(body) {
@@ -40,13 +47,37 @@ function setAllUsers(body) {
 }
 
 function setActiveUsers(body) {
-  const users = body.users.map((item) => User.decodeDict(item));
+  const { generalData } = store.getState();
+  let users = body.users.map((item) => User.decodeDict(item));
+  users = users.filter((user) => user.username !== generalData.mainUser.username);
   store.dispatch(setActiveUsersAction(users));
 }
 
 function fileSettings(body) {
-  const file = File.dictEncode(body.file);
+  const file = File.dictEncode(body);
   store.dispatch(setFileAction(file));
+}
+
+function changeLinkAccess(body) {
+  const { documentData } = store.getState();
+  documentData.file.defaultAccess = body.new_access;
+  store.dispatch(setFileAction(documentData.file));
+}
+
+function changeUserAccess(body) {
+  const { generalData, documentData } = store.getState();
+  const user = User.decodeDict(body.user);
+  if (user.username === generalData.mainUser.username) {
+    generalData.mainUser.access = user.access;
+    store.dispatch(setMainUserAction(generalData.mainUser));
+  } else {
+    const users = documentData.active_users.map((item) => (
+      (item.username === user.username) ? user : item));
+    store.dispatch(setActiveUsers(users));
+  }
+  const users = documentData.allUsers.map((item) => (
+    (item.username === user.username) ? user : item));
+  store.dispatch(setAllUsersAction(users));
 }
 
 const MESSAGE_ACTIONS = {
@@ -56,15 +87,18 @@ const MESSAGE_ACTIONS = {
   delete_user: deleteUser,
 
   file_info: fileInfo,
+  change_file_config: fileInfo,
   file_settings: fileSettings,
   active_users: setActiveUsers,
   all_users: setAllUsers,
+  change_link_access: changeLinkAccess,
+  change_user_access: changeUserAccess,
 };
 
 export default function receive(data) {
   if (data.type in MESSAGE_ACTIONS) {
     MESSAGE_ACTIONS[data.type](data);
   } else {
-    console.error(`${data.type} unknown `);
+    // console.error(`${data.type} unknown `); TODO DELETE IT
   }
 }

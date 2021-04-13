@@ -1,4 +1,5 @@
-export const SERVER_URL = 'http://localhost:8000';
+export const SERVER_URL = 'http://26.124.121.68:8000';
+export const CHANNELS_SERVER_URL = 'ws://26.124.121.68:8000';
 
 // Page Names
 

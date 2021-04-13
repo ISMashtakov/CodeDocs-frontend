@@ -11,12 +11,15 @@ import { setFileAction, setActiveUsersAction } from '../../workspace/actions';
 import { CREATE_FILE_URL } from '../../helpers/users_helper';
 import { setMainUserAction } from '../../redux/actions';
 import File from '../../helpers/file';
-import { getFetchWithJsonParams, simpleFetch, queueMocks } from '../../__test_helpers__/mocks';
-import { sleep, acceptDialog } from '../../__test_helpers__/help_funcs';
 import {
-  getTestUser, FILES_LIST, getFileJson, getNewUserMessage,
+  getFetchWithJsonParams, simpleFetch, queueMocks, getFetchWithTextParams,
+} from '../../__test_helpers__/mocks';
+import { sleep } from '../../__test_helpers__/help_funcs';
+import {
+  getTestUser, getFileJson,
 } from '../../__test_helpers__/data';
-import * as general_helpers from '../../helpers/general_helpers';
+import { getNewUserMessage } from '../../__test_helpers__/messagesData';
+import * as generalHelpers from '../../helpers/general_helpers';
 import * as connectionActions from '../../workspace/connectionActions';
 import * as auth from '../../helpers/auth_helper';
 import receive from '../../workspace/connectionReceiver';
@@ -25,7 +28,7 @@ let container = null;
 
 beforeEach(() => {
   jest.spyOn(global, 'fetch').mockImplementation(simpleFetch());
-  jest.spyOn(general_helpers, 'openPage').mockImplementation(simpleFetch());
+  jest.spyOn(generalHelpers, 'openPage').mockImplementation(simpleFetch());
   jest.spyOn(auth, 'toLogin').mockImplementation(simpleFetch());
   container = document.createElement('div');
   document.body.appendChild(container);
@@ -39,7 +42,7 @@ afterEach(() => {
   container.remove();
   container = null;
   global.fetch.mockRestore();
-  general_helpers.openPage.mockRestore();
+  generalHelpers.openPage.mockRestore();
   auth.toLogin.mockRestore();
 
   store.dispatch(setMainUserAction(null));
@@ -85,8 +88,11 @@ it('Header render good', async () => {
 });
 
 it('New file good', async () => {
-  const fetch = jest.spyOn(global, 'fetch').mockImplementation(getFetchWithJsonParams(getFileJson()));
-  const openPage = jest.spyOn(general_helpers, 'openPage').mockImplementation(simpleFetch());
+  const fetch = jest.spyOn(global, 'fetch').mockImplementation(queueMocks([
+    getFetchWithJsonParams(getFileJson()),
+    getFetchWithTextParams('link', 200),
+  ]));
+  const openPage = jest.spyOn(generalHelpers, 'openPage').mockImplementation(simpleFetch());
 
   await act(async () => {
     render(
@@ -127,7 +133,7 @@ it('New file good', async () => {
     await sleep(500);
   });
 
-  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(fetch).toHaveBeenCalledTimes(2);
   expect(fetch.mock.calls[0][0]).toEqual(CREATE_FILE_URL);
   expect(fetch.mock.calls[0][1].method).toEqual('POST');
   expect(fetch.mock.calls[0][1].body).toEqual('name=new_filename&programming_language=python');
@@ -199,7 +205,7 @@ it('Settings good', async () => {
 });
 
 it('To profile button good', async () => {
-  const openPage = jest.spyOn(general_helpers, 'openPage').mockImplementation(simpleFetch());
+  const openPage = jest.spyOn(generalHelpers, 'openPage').mockImplementation(simpleFetch());
 
   await act(async () => {
     render(
@@ -275,22 +281,22 @@ it('User avatars check', async () => {
   expect(usersDiv.children.length).toEqual(0);
 
   await act(async () => {
-    receive(getNewUserMessage('channel_1'));
+    receive(getNewUserMessage('username_1'));
     await sleep(500);
   });
 
   expect(usersDiv.children.length).toEqual(1);
-  console.log(usersDiv.innerHTML);
-  expect(document.getElementById('workspace_Header_userAvatar_channel_1')).toBeTruthy();
+
+  expect(document.getElementById('workspace_Header_userAvatar_username_1')).toBeTruthy();
 
   await act(async () => {
-    receive(getNewUserMessage('channel_2'));
+    receive(getNewUserMessage('username_2'));
     await sleep(500);
   });
 
   expect(usersDiv.children.length).toEqual(2);
-  expect(document.getElementById('workspace_Header_userAvatar_channel_1')).toBeTruthy();
-  expect(document.getElementById('workspace_Header_userAvatar_channel_2')).toBeTruthy();
+  expect(document.getElementById('workspace_Header_userAvatar_username_1')).toBeTruthy();
+  expect(document.getElementById('workspace_Header_userAvatar_username_2')).toBeTruthy();
 
   await act(async () => {
     store.dispatch(setActiveUsersAction([]));
@@ -298,6 +304,6 @@ it('User avatars check', async () => {
   });
 
   expect(usersDiv.children.length).toEqual(0);
-  expect(document.getElementById('workspace_Header_userAvatar_channel_1')).not.toBeTruthy();
-  expect(document.getElementById('workspace_Header_userAvatar_channel_2')).not.toBeTruthy();
+  expect(document.getElementById('workspace_Header_userAvatar_username_1')).not.toBeTruthy();
+  expect(document.getElementById('workspace_Header_userAvatar_username_2')).not.toBeTruthy();
 });
