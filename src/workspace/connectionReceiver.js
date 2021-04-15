@@ -6,6 +6,9 @@ import {
 import { setMainUserAction } from '../redux/actions';
 import File from '../helpers/file';
 import { User } from '../helpers/user';
+import { getOperationByMessage } from './operations';
+
+export const textEditor = [];
 
 // On start connection
 function channelName(body) {
@@ -78,6 +81,16 @@ function changeUserAccess(body) {
   store.dispatch(setAllUsersAction(users));
 }
 
+function newOperation(body) {
+  const { revision, operation, channel } = body;
+  const { generalData } = store.getState();
+  textEditor[0].receiveOperation(
+    getOperationByMessage(operation),
+    revision,
+    channel === generalData.channel,
+  );
+}
+
 const MESSAGE_ACTIONS = {
   channel_name: channelName,
   new_user: newUser,
@@ -91,6 +104,7 @@ const MESSAGE_ACTIONS = {
   all_users: setAllUsers,
   change_link_access: changeLinkAccess,
   change_user_access: changeUserAccess,
+  operation: newOperation,
 };
 
 export default function receive(data) {
