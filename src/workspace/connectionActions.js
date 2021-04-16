@@ -45,7 +45,7 @@ export function changeUserAccess(id, access) {
 
 export function sendOperationMessage(operation, revision) {
   const data = JSON.stringify({
-    type: 'operation',
+    type: 'apply_operation',
     revision,
     operation: operation.getMessage(),
   });

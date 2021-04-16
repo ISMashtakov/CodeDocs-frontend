@@ -6,6 +6,13 @@ export const TASK_DELETE_ACTIVE_USER = 'DELETE_ACTIVE_USER';
 export const TASK_SET_ACTIVE_USERS = 'SET_ACTIVE_USERS';
 export const TASK_SET_ALL_USERS = 'SET_ALL_USERS';
 export const TASK_ADD_USER = 'ADD_USER';
+export const TASK_UPDATE = 'UPDATE';
+
+export function updateAction() {
+  return {
+    type: TASK_UPDATE,
+  };
+}
 
 export function setFileAction(file) {
   return {

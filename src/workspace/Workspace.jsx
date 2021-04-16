@@ -18,7 +18,7 @@ function Workspace({ consoleHeight }) {
     const oldText = textEditor.text;
     textEditor.text = newText;
     const operations = getOperations(oldText, newText);
-    operations.forEach(textEditor.addOperation);
+    operations.forEach((item) => textEditor.addOperation(item));
   }
 
   return (
@@ -44,6 +44,7 @@ function Workspace({ consoleHeight }) {
 function mapToState(state) {
   return {
     consoleHeight: state.documentData.consoleHeight,
+    forUpdate: state.documentData.forUpdate,
   };
 }
 export default connect(mapToState)(Workspace);

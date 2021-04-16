@@ -1,24 +1,21 @@
 import { Insert, Delete, Neutral } from '../../workspace/operations';
-import { getAllPairs } from '../../helpers/general_helpers'
 
 // 0123456789
 const DIFERENS_OPERATIONS = [
-  //Insert 
-  new Insert(1, '1'), 
+  // Insert
+  new Insert(1, '1'),
   new Insert(3, '4'),
   new Insert(3, '6'),
 
-  //Delete 
+  // Delete
   new Delete(3, '3456'),
   new Delete(2, '2'),
   new Delete(2, '23456'),
   new Delete(3, '34567'),
 
-  //Neutral
-  new Neutral()
-]
-
-
+  // Neutral
+  new Neutral(),
+];
 
 describe('Test applyToStr', () => {
   it('Insert', () => {
@@ -232,7 +229,7 @@ describe('Test changeByOperation', () => {
 describe('Test oposite', () => {
   it('Insert', () => {
     const op1 = new Insert(1, '123');
-    const op2 = op1.oposite
+    const op2 = op1.oposite;
     expect(op2).toBeInstanceOf(Delete);
     expect(op2.pos).toEqual(1);
     expect(op2.text).toEqual('123');
@@ -240,7 +237,7 @@ describe('Test oposite', () => {
 
   it('Delete', () => {
     const op1 = new Delete(1, '123');
-    const op2 = op1.oposite
+    const op2 = op1.oposite;
     expect(op2).toBeInstanceOf(Insert);
     expect(op2.pos).toEqual(1);
     expect(op2.text).toEqual('123');
@@ -248,31 +245,15 @@ describe('Test oposite', () => {
 
   it('Neutral', () => {
     const op1 = new Neutral();
-    const op2 = op1.oposite
+    const op2 = op1.oposite;
     expect(op2).toBeInstanceOf(Neutral);
   });
-})
+});
 
 describe('Test laws', () => {
   it('-(-op) = op', () => {
-    DIFERENS_OPERATIONS.forEach(op=>{
-      expect(op.oposite.oposite).toEqual(op)
-    })
+    DIFERENS_OPERATIONS.forEach((op) => {
+      expect(op.oposite.oposite).toEqual(op);
+    });
   });
-
-  it('op1 / op2 = op3   =>   op3 / (-op2) = op1', () => {
-    const pairs = getAllPairs(DIFERENS_OPERATIONS)
-    pairs.forEach(pair=>{
-      const op1 = pair[0]
-      const op2 = pair[1]
-      const op3 = op1.changeByOperation(op2)
-      if(op3.changeByOperation(op2.oposite) != op1){
-        console.log(op1)
-        console.log(op2)
-        console.log(op3)
-        return
-      }
-      expect(op3.changeByOperation(op2.oposite)).toEqual(op1)
-    })
-  });
-})
+});

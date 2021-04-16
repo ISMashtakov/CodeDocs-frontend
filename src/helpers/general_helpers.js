@@ -11,19 +11,19 @@ export function openPage(page) {
 }
 
 export function getAllPairs(list) {
-  const pairs = []
-  for(var i=0; i < list.length; i++){
-    for(var j=0; j < list.length; j++){
-      pairs.push([list[i], list[j]])
-    } 
+  const pairs = [];
+  for (let i = 0; i < list.length; i += 1) {
+    for (let j = 0; j < list.length; j += 1) {
+      pairs.push([list[i], list[j]]);
+    }
   }
-  return pairs
+  return pairs;
 }
 
 export class QueueActions {
   constructor() {
     this.queue = [];
-    this.isRun = false
+    this.isRun = false;
   }
 
   run() {
@@ -40,7 +40,7 @@ export class QueueActions {
 
   add(action) {
     this.queue.push(action);
-    this.run()
+    this.run();
   }
 
   clean() {

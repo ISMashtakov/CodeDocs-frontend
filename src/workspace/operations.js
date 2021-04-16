@@ -8,7 +8,7 @@ export class Operation {
 
   changeByOperation(oper) {
     if (!(oper instanceof Operation)) {
-      throw new Error(`illegal argument`);
+      throw new Error('illegal argument');
     }
     return this;
   }
@@ -23,6 +23,10 @@ export class Operation {
 }
 
 export class Insert extends Operation {
+  static get id() {
+    return 1;
+  }
+
   constructor(pos, text) {
     super();
     this.pos = pos;
@@ -31,7 +35,7 @@ export class Insert extends Operation {
 
   getMessage() {
     return {
-      type: 'insert',
+      type: Insert.id,
       position: this.pos,
       text: this.text,
     };
@@ -51,7 +55,7 @@ export class Insert extends Operation {
       if (this.pos <= oper.pos) {
         return new Insert(this.pos, this.text);
       }
-      if (this.pos >= oper.end) {
+      if (this.pos > oper.end) {
         return new Insert(this.pos - oper.length, this.text);
       }
 
@@ -72,12 +76,16 @@ export class Insert extends Operation {
     return str.slice(0, this.pos) + this.text + str.slice(this.pos);
   }
 
-  get oposite(){
-    return new Delete(this.pos, this.text)
+  get oposite() {
+    return new Delete(this.pos, this.text);
   }
 }
 
 export class Delete extends Operation {
+  static get id() {
+    return 2;
+  }
+
   constructor(pos, text) {
     super();
     this.pos = pos;
@@ -86,7 +94,7 @@ export class Delete extends Operation {
 
   getMessage() {
     return {
-      type: 'delete',
+      type: Delete.id,
       position: this.pos,
       text: this.text,
     };
@@ -118,20 +126,20 @@ export class Delete extends Operation {
       if (this.pos < oper.pos && this.end <= oper.end) {
         return new Delete(this.pos, this.text.slice(0, oper.pos - this.pos));
       }
-      if (this.pos < oper.pos && this.end > oper.end) {
-        return new Delete(
-          this.pos,
-          this.text.slice(0, oper.pos - this.pos) + this.text.slice(oper.end - this.pos),
-        );
-      }
-      if (this.end <= oper.end) {
+      if (oper.pos <= this.pos && this.end <= oper.end) {
         return new Neutral();
       }
-      if (this.pos < oper.end) {
+      if (oper.pos <= this.pos && this.pos <= oper.end && oper.end < this.end) {
         return new Delete(oper.pos, this.text.slice(oper.end - this.pos));
       }
+      if (this.pos > oper.end) {
+        return new Delete(this.pos - oper.length, this.text);
+      }
 
-      return new Delete(this.pos - oper.length, this.text);
+      return new Delete(
+        this.pos,
+        this.text.slice(0, oper.pos - this.pos) + this.text.slice(oper.end - this.pos),
+      );
     }
     if (oper instanceof Neutral) {
       return new Delete(this.pos, this.text);
@@ -147,15 +155,19 @@ export class Delete extends Operation {
     return str.slice(0, this.pos) + str.slice(this.end);
   }
 
-  get oposite(){
-    return new Insert(this.pos, this.text)
+  get oposite() {
+    return new Insert(this.pos, this.text);
   }
 }
 
 export class Neutral extends Operation {
+  static get id() {
+    return 0;
+  }
+
   getMessage() {
     return {
-      type: 'neutral',
+      type: Neutral.id,
     };
   }
 
@@ -168,8 +180,8 @@ export class Neutral extends Operation {
     return str;
   }
 
-  get oposite(){
-    return new Neutral()
+  get oposite() {
+    return new Neutral();
   }
 }
 
@@ -197,11 +209,11 @@ export function getOperations(oldText, newText) {
 
 export function getOperationByMessage({ type, position, text }) {
   switch (type) {
-    case 'insert':
+    case Insert.id:
       return new Insert(position, text);
-    case 'delete':
+    case Delete.id:
       return new Delete(position, text);
-    case 'neutral':
+    case Neutral.id:
       return new Neutral();
     default:
       throw Error(`invalid operation ${type}`);

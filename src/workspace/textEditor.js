@@ -1,31 +1,34 @@
 import { sendOperationMessage, requestOperationHistory } from './connectionActions';
 import { textEditor as receiverTextEditor } from './connectionReceiver';
+import { updateAction } from './actions';
+import store from '../redux/store';
 
+export class StorageOperation {
+  static get TYPES() {
+    return {
+      APPLIED: 0,
+      CANCELED: 1,
+      CANCELING: 2,
+      ALIEN: 3,
+    };
+  }
 
-export class StorageOperation{
-    static TYPES = {
-        APPLIED: 0,
-        CANCELED: 1,
-        CANCELING: 2,
-        ALIEN: 3
-    }
+  constructor(operation, type = 0) {
+    this.operation = operation;
+    this.type = type;
+  }
 
-    constructor(operation, type = 0){
-        this.operation = operation
-        this.type = type
-    }
+  get isApplied() {
+    return this.type === this.TYPES.APPLIED;
+  }
 
-    get isApplied(){
-        return this.type === this.TYPES.APPLIED
-    }
+  get isCanceled() {
+    return this.type === this.TYPES.CANCELED;
+  }
 
-    get isCanceled(){
-        return this.type === this.TYPES.CANCELED
-    }
-
-    get isCanceling(){
-        return this.type === this.TYPES.CANCELING
-    }
+  get isCanceling() {
+    return this.type === this.TYPES.CANCELING;
+  }
 }
 
 class TextEditor {
@@ -38,11 +41,14 @@ class TextEditor {
   }
 
   trySend() {
-        if (this.operationWaitedApprove === null && this.notApprovedOperations.length > 0 && this.revision !== null) {
-            this.operationWaitedApprove = this.notApprovedOperations[0];
-            this.notApprovedOperations = this.notApprovedOperations.slice(1);
-            sendOperationMessage(this.operationWaitedApprove.operation, this.revision);
-        }
+    if (this.operationWaitedApprove === null
+        && this.notApprovedOperations.length > 0
+        && this.revision !== null
+    ) {
+      this.operationWaitedApprove = this.notApprovedOperations[0];
+      this.notApprovedOperations = this.notApprovedOperations.slice(1);
+      sendOperationMessage(this.operationWaitedApprove.operation, this.revision);
+    }
   }
 
   addOperation(operation) {
@@ -50,60 +56,62 @@ class TextEditor {
     this.trySend();
   }
 
-  applyOperation(operation){
-    this.text = operation.applyToStr(this.text)
+  applyOperation(operation) {
+    this.text = operation.applyToStr(this.text);
   }
 
-  updateNotAprovedOperations(operation){
-      this.notApprovedOperations.forEach(item => {
-        item.operation = item.operation.changeByOperation(operation)
-      })
+  updateNotAprovedOperations(operation) {
+    this.notApprovedOperations.forEach((item) => {
+      item.operation = item.operation.changeByOperation(operation);
+    });
   }
 
-//   receiveListOperations(list){
-//       const notApplyedRevisions = Object.keys(list).map(item => item * 1)
-
-//       notApplyedRevisions.filter(rev => rev <= this.revision).forEach(rev => {
-//           delete this.list[rev]
-//       })
-
-//       notApplyedRevisions.filter(rev => rev > this.revision).sort().forEach(rev => {
-        
-//           if (rev === this.revision + 1){
-//               this.applyOperation(this.list[rev]);
-//               this.revision++;
-//           }
-//       })
-
-//       if (notApplyedRevisions.some(rev => rev > this.revision)){
-//           this.list = {}
-//           requestOperationHistory(this.revision)
-//       }
-//   }
-
-    receiveOperation(operation, revision, isMy){
-        if (this.revision === null || this.revision + 1 > revision){
+  receiveOperation(operation, revision, isMy) {
+    if (this.revision === null || this.revision + 1 > revision) {
+      return null;
+    } if (this.revision + 1 < revision) {
+      requestOperationHistory();
+    } else if (this.revision + 1 === revision) {
+      if (isMy) {
+        if (this.operationWaitedApprove !== null) {
+          this.approvedOperations.push(
+            new StorageOperation(operation, this.operationWaitedApprove.type),
+          );
         }
-        else if (this.revision + 1 < revision){
-            requestOperationHistory()
+        this.revision = revision;
+        this.operationWaitedApprove = null;
+        this.trySend();
+      } else {
+        let text = this.text;
+        this.notApprovedOperations.slice().reverse().forEach((item) => {
+          text = item.operation.oposite.applyToStr(text);
+        });
+
+        if (this.operationWaitedApprove !== null) {
+          text = this.operationWaitedApprove.operation.oposite.applyToStr(text);
         }
-        else if (this.revision + 1 === revision){
-            if(isMy){
-                this.approvedOperations.push(new StorageOperation(operation, this.operationWaitedApprove.type))
-                this.operationWaitedApprove = null;
-                this.trySend()
-            }else{
-                var updatedOp = operation
-                this.notApprovedOperations.forEach(item => {
-                    updatedOp = updatedOp.changeByOperation(item.operation)
-                })
-                this.applyOperation(updatedOp)
-                this.updateNotAprovedOperations(operation)
-                this.approvedOperations.push(new StorageOperation(updatedOp, StorageOperation.TYPES.ALIEN))
-                this.revision = revision
-            }
+
+        text = operation.applyToStr(text);
+        this.approvedOperations.push(new StorageOperation(operation, StorageOperation.TYPES.ALIEN));
+
+        this.updateNotAprovedOperations(operation);
+        if (this.operationWaitedApprove !== null) {
+          const neoOp = this.operationWaitedApprove.operation.changeByOperation(operation);
+          this.operationWaitedApprove.operation = neoOp;
+          text = this.operationWaitedApprove.operation.applyToStr(text);
         }
+
+        this.notApprovedOperations.forEach((item) => {
+          text = item.operation.applyToStr(text);
+        });
+
+        this.text = text;
+        this.revision = revision;
+        store.dispatch(updateAction());
+      }
     }
+    return null;
+  }
 }
 
 const textEditor = new TextEditor();
