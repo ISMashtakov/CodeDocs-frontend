@@ -5,13 +5,22 @@ import AceEditor from 'react-ace';
 
 import COLORS from '../style/colors';
 import FONTS from '../style/fonts';
+import textEditor from './textEditor';
 import { HEADER_HEIGHT } from './Header';
 import { CONSOLE_BOTTOM_SPACE, CONSOLE_TOP_SPACE } from './Console';
+import { getOperations } from './operations';
 
 import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/theme-github';
 
-function Workspace({ text, consoleHeight }) {
+function Workspace({ consoleHeight }) {
+  function onChange(newText) {
+    const oldText = textEditor.text;
+    textEditor.text = newText;
+    const operations = getOperations(oldText, newText);
+    operations.forEach((item) => textEditor.addOperation(item));
+  }
+
   return (
     <Box style={{
       position: 'absolute', bottom: consoleHeight + CONSOLE_BOTTOM_SPACE + CONSOLE_TOP_SPACE, top: HEADER_HEIGHT + 52, left: 70, right: 97,
@@ -20,9 +29,10 @@ function Workspace({ text, consoleHeight }) {
       <AceEditor
         mode="python"
         theme="github"
-        value={text}
+        value={textEditor.text}
         fontSize={FONTS.BODY.fontSize}
         style={{ background: COLORS.WHITE, width: '100%', height: '100%' }}
+        onChange={onChange}
         highlightActiveLine={false}
         setOptions={{
           showLineNumbers: true,
@@ -33,8 +43,8 @@ function Workspace({ text, consoleHeight }) {
 }
 function mapToState(state) {
   return {
-    text: state.documentData.text,
     consoleHeight: state.documentData.consoleHeight,
+    forUpdate: state.documentData.forUpdate,
   };
 }
 export default connect(mapToState)(Workspace);

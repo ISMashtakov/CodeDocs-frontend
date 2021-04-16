@@ -42,3 +42,20 @@ export function changeUserAccess(id, access) {
   });
   connection.send(data);
 }
+
+export function sendOperationMessage(operation, revision) {
+  const data = JSON.stringify({
+    type: 'apply_operation',
+    revision,
+    operation: operation.getMessage(),
+  });
+  connection.send(data);
+}
+
+export function requestOperationHistory(revision) {
+  const data = JSON.stringify({
+    type: 'operation_history',
+    revision,
+  });
+  connection.send(data);
+}

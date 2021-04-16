@@ -6,6 +6,9 @@ import {
 import { setMainUserAction } from '../redux/actions';
 import File from '../helpers/file';
 import { User } from '../helpers/user';
+import { getOperationByMessage } from './operations';
+
+export const textEditor = [];
 
 // On start connection
 function channelName(body) {
@@ -36,6 +39,8 @@ function deleteUser(body) {
 // On requests
 function fileInfo(body) {
   const file = File.dictEncode(body);
+  textEditor[0].text = body.file.content;
+  textEditor[0].revision = body.file.last_revision;
   store.dispatch(setFileAction(file));
 }
 
@@ -78,6 +83,26 @@ function changeUserAccess(body) {
   store.dispatch(setAllUsersAction(users));
 }
 
+function newOperation(body) {
+  const { generalData } = store.getState();
+  textEditor[0].receiveOperation(
+    getOperationByMessage(body.operation),
+    body.operation.revision,
+    body.operation.channel_name === generalData.mainUser.channel,
+  );
+}
+
+function operationHistory(body) {
+  const { generalData } = store.getState();
+  body.operations.forEach((item) => {
+    textEditor[0].receiveOperation(
+      getOperationByMessage(item.operation),
+      item.operation.revision,
+      item.operation.channel_name === generalData.mainUser.channel,
+    );
+  });
+}
+
 const MESSAGE_ACTIONS = {
   channel_name: channelName,
   new_user: newUser,
@@ -85,15 +110,18 @@ const MESSAGE_ACTIONS = {
   delete_user: deleteUser,
 
   file_info: fileInfo,
-  change_file_config: fileInfo,
-  file_settings: fileSettings,
+  change_file_config: fileSettings,
   active_users: setActiveUsers,
   all_users: setAllUsers,
   change_link_access: changeLinkAccess,
   change_user_access: changeUserAccess,
+  apply_operation: newOperation,
+  operation_history: operationHistory,
 };
 
+export const history = [];
 export default function receive(data) {
+  history.push(data);
   if (data.type in MESSAGE_ACTIONS) {
     MESSAGE_ACTIONS[data.type](data);
   } else {

@@ -1,4 +1,3 @@
-export const TASK_SET_TEXT = 'SET_TEXT';
 export const TASK_SET_FILE = 'SET_FILE';
 export const TASK_SET_CONSOLE_HEIGHT = 'SET_CONSOLE_HEIGHT';
 export const TASK_CONSOLE_DOUBLE_CLICK = 'CONSOLE_DOUBLE_CLICK';
@@ -7,11 +6,11 @@ export const TASK_DELETE_ACTIVE_USER = 'DELETE_ACTIVE_USER';
 export const TASK_SET_ACTIVE_USERS = 'SET_ACTIVE_USERS';
 export const TASK_SET_ALL_USERS = 'SET_ALL_USERS';
 export const TASK_ADD_USER = 'ADD_USER';
+export const TASK_UPDATE = 'UPDATE';
 
-export function setTextAction(name) {
+export function updateAction() {
   return {
-    type: TASK_SET_TEXT,
-    name,
+    type: TASK_UPDATE,
   };
 }
 

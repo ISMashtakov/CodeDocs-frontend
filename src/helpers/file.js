@@ -46,7 +46,7 @@ export default class File {
       dict.file.name,
       dict.file.programming_language,
       dict.access,
-      dict.link_access,
+      dict.file.link_access,
     );
   }
 
