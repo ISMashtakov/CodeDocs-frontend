@@ -13,6 +13,10 @@ export class Operation {
     return this;
   }
 
+  changePosition(pos) {
+    return pos;
+  }
+
   get length() {
     return this.text.length;
   }
@@ -78,6 +82,13 @@ export class Insert extends Operation {
 
   get oposite() {
     return new Delete(this.pos, this.text);
+  }
+
+  changePosition(pos) {
+    if (this.pos <= pos) {
+      return pos + this.length;
+    }
+    return pos;
   }
 }
 
@@ -157,6 +168,16 @@ export class Delete extends Operation {
 
   get oposite() {
     return new Insert(this.pos, this.text);
+  }
+
+  changePosition(pos) {
+    if (this.end <= pos) {
+      return pos - this.length;
+    }
+    if (this.pos <= pos && this.end >= pos) {
+      return this.pos;
+    }
+    return pos;
   }
 }
 

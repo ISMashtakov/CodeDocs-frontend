@@ -54,7 +54,7 @@ function DocumentPage({ mainUser, setMainUser, file }) {
   }
 
   return (
-    <div>
+    <div style={{ minWidth: 775 }}>
       <Header />
       <div style={{
         background: COLORS.LIGHT_GRAY, display: 'block', width: '100%', height: `calc(100vh - ${HEADER_HEIGHT}px)`,

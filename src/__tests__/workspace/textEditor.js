@@ -2,6 +2,13 @@ import textEditor, { StorageOperation } from '../../workspace/textEditor';
 import { Insert } from '../../workspace/operations';
 import * as actions from '../../workspace/connectionActions';
 import { simpleFetch } from '../../__test_helpers__/mocks';
+import { Cursor } from '../../helpers/general_helpers';
+
+beforeEach(() => {
+  textEditor.text = '';
+  textEditor.cursor = new Cursor();
+  textEditor.anchor = new Cursor();
+});
 
 afterEach(() => {
   textEditor.text = '';
@@ -44,6 +51,11 @@ it('test applyOperation', () => {
   const op = new Insert(0, 'hello');
   textEditor.applyOperation(op);
   expect(textEditor.text).toEqual('hello');
+  textEditor.cursor.column = 2;
+  textEditor.applyOperation(op);
+  expect(textEditor.text).toEqual('hellohello');
+  expect(textEditor.cursor.row).toEqual(0);
+  expect(textEditor.cursor.column).toEqual(7);
 });
 
 it('test updateNotAprovedOperations', () => {

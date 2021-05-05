@@ -23,6 +23,7 @@ import { sendFileSettings } from './connectionActions';
 import ShareDialog from './ShareDialog';
 
 export const HEADER_HEIGHT = 75;
+const MAX_SHOWED_USERS = 5;
 
 const HEADER_BUTTON_STYLE = {
   ...mainStyle.OUTLINED_BUTTON_STYLE, ...FONTS.H3, textTransform: 'none',
@@ -130,14 +131,113 @@ const FileSettingsDialog = connect(stateToPropsMap)(({ open, onClose, file }) =>
   );
 });
 
+
+function activeUsersstateToPropsMap(state) {
+
+  return {
+    // activeUsers: state.documentData.activeUsers,
+    activeUsers: [
+      {color: COLORS.ICON_RED, username: "user1", shortName: "U1"},
+      {color: COLORS.ICON_GREEN, username: "user2", shortName: "U2"},
+      {color: COLORS.ICON_YELLOW, username: "user3", shortName: "U3"},
+      {color: COLORS.ICON_RED, username: "user4", shortName: "U4"},
+      {color: COLORS.ICON_GREEN, username: "user5", shortName: "U5"},
+      {color: COLORS.ICON_YELLOW, username: "user6", shortName: "U6"},
+      {color: COLORS.ICON_RED, username: "user7", shortName: "U7"},
+      {color: COLORS.ICON_GREEN, username: "user8", shortName: "U8"},
+      {color: COLORS.ICON_YELLOW, username: "user9", shortName: "U9"},
+    ]
+  };
+}
+
+const ActiveUsersList = connect(activeUsersstateToPropsMap)(({ activeUsers }) => {
+  const [anchorElUsers, setAnchorElUsers] = React.useState(null);
+  const ref = React.createRef()
+  console.log(anchorElUsers)
+  function MoreUsers() {
+    if (activeUsers.length <= 5){
+      return null
+    }
+    return(
+      <div
+        style={{
+          display: 'inline-block', position: 'relative', zIndex: 5,
+        }}
+      >
+        <Avatar 
+          
+          user={{color: COLORS.GRAY2, shortName: "+" + (activeUsers.length - 5)}} 
+          style={{color: COLORS.TEXT_GRAY}} 
+          onClick={() => {console.log(ref); setAnchorElUsers(ref.current)}}
+        />
+      </div>
+    
+    )
+  }
+
+ return (
+    <div ref={ref} id="workspace_Header_userAvatars" style={{ float: 'right', marginTop: 12, marginRight: 10 }}>
+    {
+        activeUsers.slice(0,MAX_SHOWED_USERS).map((item, i) => (
+          <div
+            key={JSON.stringify(item)}
+            
+            style={{
+              display: 'inline-block', position: 'relative', left: 10 * (Math.min(activeUsers.length, MAX_SHOWED_USERS) - i - (activeUsers.length > 5?0:1)), zIndex: i,
+            }}
+          >
+            <Avatar showTip user={item} id={`workspace_Header_userAvatar_${item.username}`} />
+          </div>
+        ))
+    }
+    <MoreUsers />
+
+    <Popover //Users popover
+      open={!!anchorElUsers}
+      anchorEl={anchorElUsers}
+      onClose={() => setAnchorElUsers(null)}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'right',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'center',
+      }}
+    >
+      <div style={{maxHeight: 300}}>
+      {
+        activeUsers.map((item) => (
+          <div style={{padding: "5px 10px"}} key={JSON.stringify(item)}>
+            <div
+              
+              ref={ref}
+              style={{
+                display: 'inline-block', position: 'relative'
+              }}
+            >
+              <Avatar showTip user={item}/>
+            </div>
+            <span style={{...FONTS.BODY, color: COLORS.BLACK, display: "inline-block", minWidth: 178, textAlign:"center"}}>{item.username}</span>
+          </div>
+        ))
+      }
+    </div>
+    </Popover>
+  </div>
+  )
+});
+
+
 function Header({
-  user, file, activeUsers,
+  user, file
 }) {
   const [isOpenCreateFileDialog, setIsOpenCreateFileDialog] = React.useState(false);
   const [isOpenFileSettingsDialog, setIsOpenFileSettingsDialog] = React.useState(false);
   const [isOpenShareDialog, setIsOpenShareDialog] = React.useState(false);
   const [anchorElSettings, setAnchorElSettings] = React.useState(null);
   const [anchorElAccount, setAnchorElAccount] = React.useState(null);
+  
 
   return (
     <div id="workspace_Header" style={{ width: '100%', height: HEADER_HEIGHT, background: COLORS.WHITE }}>
@@ -171,20 +271,8 @@ function Header({
       >
         SHARE CODE
       </Button>
-      <div id="workspace_Header_userAvatars" style={{ float: 'right', marginTop: 12, marginRight: 50 }}>
-        {
-            activeUsers.map((item, i) => (
-              <div
-                key={JSON.stringify(item)}
-                style={{
-                  display: 'inline-block', position: 'relative', left: 10 * (activeUsers.length - i - 1), zIndex: i,
-                }}
-              >
-                <Avatar showTip user={item} id={`workspace_Header_userAvatar_${item.username}`} />
-              </div>
-            ))
-          }
-      </div>
+     
+     <ActiveUsersList />
 
       <CreateFileDialog
         user={user}
@@ -196,7 +284,7 @@ function Header({
         onClose={() => setIsOpenFileSettingsDialog(false)}
       />
       <ShareDialog open={isOpenShareDialog} onClose={() => setIsOpenShareDialog(false)} />
-      <Popover
+      <Popover //settings popover
         open={!!anchorElSettings}
         anchorEl={anchorElSettings}
         onClose={() => setAnchorElSettings(null)}
@@ -219,9 +307,8 @@ function Header({
         >
           Change file configurations
         </Button>
-      </Popover>
-
-      <Popover
+      </Popover>      
+      <Popover // Main user popover
         open={!!anchorElAccount}
         anchorEl={anchorElAccount}
         PaperProps={{

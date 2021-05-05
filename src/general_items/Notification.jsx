@@ -1,6 +1,7 @@
 import React from 'react';
 import CheckCircleOutlinedIcon from '@material-ui/icons/CheckCircleOutlined';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
+import ErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined';
 
 import COLORS from '../style/colors';
 import FONTS from '../style/fonts';
@@ -22,6 +23,14 @@ export default function Notification(key, { text, type }) {
       return (
         <div id={key} style={{ ...NOTIFICATIONS_STYLE }}>
           <CancelOutlinedIcon style={{ color: COLORS.ICON_RED, marginRight: 20 }} />
+          {text}
+        </div>
+      );
+
+    case 'warning':
+      return (
+        <div id={key} style={{ ...NOTIFICATIONS_STYLE }}>
+          <ErrorOutlineOutlinedIcon style={{ color: COLORS.ICON_YELLOW, marginRight: 20 }} />
           {text}
         </div>
       );

@@ -257,3 +257,27 @@ describe('Test laws', () => {
     });
   });
 });
+
+describe('Test changePosition', () => {
+  it('Insert', () => {
+    const op1 = new Insert(1, '123');
+    expect(op1.changePosition(4)).toEqual(7);
+    expect(op1.changePosition(1)).toEqual(4);
+    expect(op1.changePosition(0)).toEqual(0);
+  });
+
+  it('Delete', () => {
+    const op1 = new Delete(1, '123');
+    expect(op1.changePosition(5)).toEqual(2);
+    expect(op1.changePosition(4)).toEqual(1);
+    expect(op1.changePosition(3)).toEqual(1);
+    expect(op1.changePosition(2)).toEqual(1);
+    expect(op1.changePosition(1)).toEqual(1);
+    expect(op1.changePosition(0)).toEqual(0);
+  });
+
+  it('Neutral', () => {
+    const op1 = new Neutral();
+    expect(op1.changePosition(2)).toEqual(2);
+  });
+});

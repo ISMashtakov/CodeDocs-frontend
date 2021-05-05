@@ -2,6 +2,7 @@ import { sendOperationMessage, requestOperationHistory } from './connectionActio
 import { textEditor as receiverTextEditor } from './connectionReceiver';
 import { updateAction } from './actions';
 import store from '../redux/store';
+import { Cursor } from '../helpers/general_helpers';
 
 export class StorageOperation {
   static get TYPES() {
@@ -38,6 +39,9 @@ class TextEditor {
     this.operationWaitedApprove = null;
     this.approvedOperations = [];
     this.revision = null;
+    this.cursor = null;
+    this.anchor = null;
+    this.showedNotification = false;
   }
 
   trySend() {
@@ -57,7 +61,14 @@ class TextEditor {
   }
 
   applyOperation(operation) {
+    let cursorPos = this.cursor.toPos(this.text);
+    let anchorPos = this.anchor.toPos(this.text);
     this.text = operation.applyToStr(this.text);
+    cursorPos = operation.changePosition(cursorPos);
+    this.cursor = Cursor.fromPos(this.text, cursorPos);
+
+    anchorPos = operation.changePosition(anchorPos);
+    this.anchor = Cursor.fromPos(this.text, anchorPos);
   }
 
   updateNotAprovedOperations(operation) {
@@ -82,30 +93,28 @@ class TextEditor {
         this.operationWaitedApprove = null;
         this.trySend();
       } else {
-        let text = this.text;
         this.notApprovedOperations.slice().reverse().forEach((item) => {
-          text = item.operation.oposite.applyToStr(text);
+          this.applyOperation(item.operation.oposite);
         });
 
         if (this.operationWaitedApprove !== null) {
-          text = this.operationWaitedApprove.operation.oposite.applyToStr(text);
+          this.applyOperation(this.operationWaitedApprove.operation.oposite);
         }
 
-        text = operation.applyToStr(text);
+        this.applyOperation(operation);
         this.approvedOperations.push(new StorageOperation(operation, StorageOperation.TYPES.ALIEN));
 
         this.updateNotAprovedOperations(operation);
         if (this.operationWaitedApprove !== null) {
           const neoOp = this.operationWaitedApprove.operation.changeByOperation(operation);
           this.operationWaitedApprove.operation = neoOp;
-          text = this.operationWaitedApprove.operation.applyToStr(text);
+          this.applyOperation(this.operationWaitedApprove.operation);
         }
 
         this.notApprovedOperations.forEach((item) => {
-          text = item.operation.applyToStr(text);
+          this.applyOperation(item.operation);
         });
 
-        this.text = text;
         this.revision = revision;
         store.dispatch(updateAction());
       }

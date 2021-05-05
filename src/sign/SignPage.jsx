@@ -35,7 +35,7 @@ const LOGIN_ERROR_TEXT_STYLE = {
 };
 
 function PasswordField({
-  value, onChange, id, errorText = '',
+  value, onChange, id, onKeyDown, errorText = '',
 }) {
   const [showPassword, setShowPassword] = React.useState(false);
   return (
@@ -43,6 +43,7 @@ function PasswordField({
       style={mainStyle.TEXT_FIELD_STYLE}
       id={id}
       key={id}
+      onKeyDown={onKeyDown}
       value={value}
       error={!!errorText}
       variant="outlined"
@@ -200,10 +201,11 @@ const LogIn = connect(mapStateToPropsLogIn, {
             </div>
           )
           : null}
-        <div style={mainStyle.TEXT_FIELD_TEXT_STYLE}>Username</div>
+        <div style={mainStyle.TEXT_FIELD_TEXT_STYLE}>Username or Mail</div>
         <TextField
           id="sign_SignPage_LogInTab_UsernameTextField"
           variant="outlined"
+          onKeyDown={(e) => { if (e.key === 'Enter') handlerLogIn(); }}
           style={mainStyle.TEXT_FIELD_STYLE}
           InputProps={{ style: mainStyle.TEXT_FIELD_INPUT_PROPS_STYLE }}
           value={username}
@@ -212,7 +214,12 @@ const LogIn = connect(mapStateToPropsLogIn, {
         <div style={{ ...mainStyle.TEXT_FIELD_TEXT_STYLE, marginTop: 10 }}>
           Password
         </div>
-        <PasswordField id="sign_SignPage_LogInTab_PasswordTextField" value={password} onChange={(event) => setPassword(event.target.value)} />
+        <PasswordField
+          id="sign_SignPage_LogInTab_PasswordTextField"
+          value={password}
+          onKeyDown={(e) => { if (e.key === 'Enter') handlerLogIn(); }}
+          onChange={(event) => setPassword(event.target.value)}
+        />
         <div>
           <a href="#0" style={FORGOT_TEXT_STYLE}>Forgot password?</a>
         </div>

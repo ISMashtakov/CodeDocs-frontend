@@ -20,6 +20,7 @@ const COLORS = {
   BUTTON_RED: '#D81717',
   ICON_GREEN: '#B7C756',
   ICON_RED: '#C75656',
+  ICON_YELLOW: '#C79356',
 };
 
 export default COLORS;

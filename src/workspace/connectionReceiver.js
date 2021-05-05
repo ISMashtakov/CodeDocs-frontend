@@ -73,6 +73,7 @@ function changeUserAccess(body) {
   if (user.username === generalData.mainUser.username) {
     generalData.mainUser.access = user.access;
     store.dispatch(setMainUserAction(generalData.mainUser));
+    textEditor[0].showedNotification = false;
   } else {
     const users = documentData.activeUsers.map((item) => (
       (item.username === user.username) ? user : item));
