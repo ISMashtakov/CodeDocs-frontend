@@ -10,14 +10,18 @@ export const REFRESH_TOKEN_URL = `${MAIN_AUTH_URL}/jwt/refresh/`;
 export const SIGN_UP_URL = `${MAIN_AUTH_URL}/users/`;
 export const CHECK_USERNAME_URL = `${MAIN_AUTH_URL}/check_username/`;
 export const CHECK_MAIL_URL = `${MAIN_AUTH_URL}/check_email/`;
+export const RESET_PASSWORD_URL = `${MAIN_AUTH_URL}/users/reset_password/`;
+export const CONFIRM_RESET_PASSWORD_URL = `${MAIN_AUTH_URL}/users/reset_password_confirm/`;
 
 const PAGE_AFTER_LOGIN_IN_LOCAL_STORAGE = 'PAGE_AFTER_LOGIN';
 
-export function toLogin() {
-  localStorage.setItem(PAGE_AFTER_LOGIN_IN_LOCAL_STORAGE, JSON.stringify({
-    pathname: window.location.pathname,
-    search: window.location.search,
-  }));
+export function toLogin(savePage=true) {
+  if(savePage){
+    localStorage.setItem(PAGE_AFTER_LOGIN_IN_LOCAL_STORAGE, JSON.stringify({
+      pathname: window.location.pathname,
+      search: window.location.search,
+    }));
+  }
   openPage(`/${LOGIN_PAGE_NAME}`);
 }
 
@@ -146,6 +150,47 @@ class AuthApi {
       }
     } catch (err) {
       return { isGood: false };
+    }
+  }
+
+  async resetPassword(email) {
+    const params = {
+      email
+    };
+    try {
+      const result = await post(RESET_PASSWORD_URL, params);
+      switch (result.status) {
+        case 204:
+          return { isGood: true };
+        case 400:
+          return { reason: await result.json(), isGood: false };
+        default:
+          return { isGood: false, reason: {} };
+      }
+    } catch (err) {
+      return { isGood: false, reason: {} };
+    }
+  }
+
+  async confirmResetPassword(uid, token, password, rePassword) {
+    const params = {
+      uid,
+      token,
+      new_password: password,
+      re_new_password: rePassword
+    };
+    try {
+      const result = await post(CONFIRM_RESET_PASSWORD_URL, params);
+      switch (result.status) {
+        case 204:
+          return { isGood: true };
+        case 400:
+          return { ...(await result.json()), isGood: false };
+        default:
+          return { isGood: false};
+      }
+    } catch (err) {
+      return { isGood: false};
     }
   }
 }

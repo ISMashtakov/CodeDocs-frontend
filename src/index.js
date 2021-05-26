@@ -9,7 +9,8 @@ import SignPage from './sign/SignPage';
 import DocumentPage from './workspace/DocumentPage';
 import MailActivatePage from './sign/MailActivatePage';
 import AccountPage from './account/AccountPage';
-import {LOGIN_PAGE_NAME, SIGNUP_PAGE_NAME, FILE_PAGE_NAME, ACTIVATE_PAGE_NAME, ACCOUNT_PAGE_NAME} from './constants'
+import ResetPasswordPage from './sign/ResetPasswordPage';
+import {LOGIN_PAGE_NAME, SIGNUP_PAGE_NAME, FILE_PAGE_NAME, ACTIVATE_PAGE_NAME, ACCOUNT_PAGE_NAME, PASSWORD_RESET_PAGE_NAME} from './constants'
 
 
 function App(){
@@ -39,6 +40,9 @@ function App(){
           </Route>
           <Route path={`/${ACCOUNT_PAGE_NAME}`}> 
             <AccountPage/>
+          </Route>
+          <Route path={`/${PASSWORD_RESET_PAGE_NAME}`}> 
+            <ResetPasswordPage/>
           </Route>
           <Redirect from='/' to={`/${ACCOUNT_PAGE_NAME}`} />
         </Switch>

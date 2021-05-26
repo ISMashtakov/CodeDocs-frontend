@@ -52,3 +52,11 @@ export function openPage(page) {
   if (page[0] !== '/') page = `/${page}`;
   window.location.href = window.location.origin + page;
 }
+
+export function downloadFile(data, name) {
+  const a = document.createElement('a');
+  const file = new Blob([data]);
+  a.href = URL.createObjectURL(file);
+  a.download = name;
+  a.click();
+}

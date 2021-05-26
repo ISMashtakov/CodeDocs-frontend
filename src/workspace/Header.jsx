@@ -4,6 +4,7 @@ import Button from '@material-ui/core/Button';
 import Popover from '@material-ui/core/Popover';
 import { useSnackbar } from 'notistack';
 import Divider from '@material-ui/core/Divider';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 import COLORS from '../style/colors';
 import FONTS from '../style/fonts';
@@ -17,10 +18,11 @@ import FileCreateField from '../general_items/FileCreateField';
 import File, { ACCESS_TYPES } from '../helpers/file';
 import usersApi from '../helpers/users_helper';
 import { toLogin } from '../helpers/auth_helper';
-import { openPage } from '../helpers/general_helpers';
+import { openPage, downloadFile } from '../helpers/general_helpers';
 import { ACCOUNT_PAGE_NAME } from '../constants';
-import { sendFileSettings } from './connectionActions';
+import { sendFileSettings, sendRunFile } from './connectionActions';
 import ShareDialog from './ShareDialog';
+import textEditor from './textEditor';
 
 export const HEADER_HEIGHT = 75;
 const MAX_SHOWED_USERS = 5;
@@ -131,113 +133,105 @@ const FileSettingsDialog = connect(stateToPropsMap)(({ open, onClose, file }) =>
   );
 });
 
-
 function activeUsersstateToPropsMap(state) {
-
   return {
-    // activeUsers: state.documentData.activeUsers,
-    activeUsers: [
-      {color: COLORS.ICON_RED, username: "user1", shortName: "U1"},
-      {color: COLORS.ICON_GREEN, username: "user2", shortName: "U2"},
-      {color: COLORS.ICON_YELLOW, username: "user3", shortName: "U3"},
-      {color: COLORS.ICON_RED, username: "user4", shortName: "U4"},
-      {color: COLORS.ICON_GREEN, username: "user5", shortName: "U5"},
-      {color: COLORS.ICON_YELLOW, username: "user6", shortName: "U6"},
-      {color: COLORS.ICON_RED, username: "user7", shortName: "U7"},
-      {color: COLORS.ICON_GREEN, username: "user8", shortName: "U8"},
-      {color: COLORS.ICON_YELLOW, username: "user9", shortName: "U9"},
-    ]
+    activeUsers: state.documentData.activeUsers,
   };
 }
 
 const ActiveUsersList = connect(activeUsersstateToPropsMap)(({ activeUsers }) => {
   const [anchorElUsers, setAnchorElUsers] = React.useState(null);
-  const ref = React.createRef()
-  console.log(anchorElUsers)
+  const ref = React.createRef();
   function MoreUsers() {
-    if (activeUsers.length <= 5){
-      return null
+    if (activeUsers.length <= 5) {
+      return null;
     }
-    return(
+    return (
       <div
         style={{
           display: 'inline-block', position: 'relative', zIndex: 5,
         }}
       >
-        <Avatar 
-          
-          user={{color: COLORS.GRAY2, shortName: "+" + (activeUsers.length - 5)}} 
-          style={{color: COLORS.TEXT_GRAY}} 
-          onClick={() => {console.log(ref); setAnchorElUsers(ref.current)}}
+        <Avatar
+          id="workspace_Header_userAvatars_MoreUsers"
+          user={{ color: COLORS.GRAY2, shortName: `+${activeUsers.length - 5}` }}
+          style={{ color: COLORS.TEXT_GRAY }}
+          onClick={() => { setAnchorElUsers(ref.current); }}
         />
       </div>
-    
-    )
+
+    );
   }
 
- return (
+  return (
     <div ref={ref} id="workspace_Header_userAvatars" style={{ float: 'right', marginTop: 12, marginRight: 10 }}>
-    {
-        activeUsers.slice(0,MAX_SHOWED_USERS).map((item, i) => (
+      {
+        activeUsers.slice(0, MAX_SHOWED_USERS).map((item, i) => (
           <div
             key={JSON.stringify(item)}
-            
             style={{
-              display: 'inline-block', position: 'relative', left: 10 * (Math.min(activeUsers.length, MAX_SHOWED_USERS) - i - (activeUsers.length > 5?0:1)), zIndex: i,
+              display: 'inline-block', position: 'relative', left: 10 * (Math.min(activeUsers.length, MAX_SHOWED_USERS) - i - (activeUsers.length > 5 ? 0 : 1)), zIndex: i,
             }}
           >
             <Avatar showTip user={item} id={`workspace_Header_userAvatar_${item.username}`} />
           </div>
         ))
     }
-    <MoreUsers />
+      <MoreUsers />
 
-    <Popover //Users popover
-      open={!!anchorElUsers}
-      anchorEl={anchorElUsers}
-      onClose={() => setAnchorElUsers(null)}
-      anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'right',
-      }}
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'center',
-      }}
-    >
-      <div style={{maxHeight: 300}}>
-      {
-        activeUsers.map((item) => (
-          <div style={{padding: "5px 10px"}} key={JSON.stringify(item)}>
-            <div
-              
-              ref={ref}
-              style={{
-                display: 'inline-block', position: 'relative'
+      <Popover // Users popover
+        open={!!anchorElUsers}
+        anchorEl={anchorElUsers}
+        onClose={() => setAnchorElUsers(null)}
+        anchorOrigin={{
+          vertical: 60,
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+      >
+        <Scrollbars thumbSize={40} style={{ height: 300, width: 250, paddingTop: 5 }}>
+          {
+          activeUsers.map((item) => (
+            <div style={{ padding: '5px 10px' }} key={JSON.stringify(item)}>
+              <div
+                style={{
+                  display: 'inline-block', position: 'relative',
+                }}
+              >
+                <Avatar user={item} showAccess />
+              </div>
+              <span style={{
+                ...FONTS.BODY, color: COLORS.BLACK, display: 'inline-block', minWidth: 178, textAlign: 'center',
               }}
-            >
-              <Avatar showTip user={item}/>
+              >
+                {item.username}
+              </span>
             </div>
-            <span style={{...FONTS.BODY, color: COLORS.BLACK, display: "inline-block", minWidth: 178, textAlign:"center"}}>{item.username}</span>
-          </div>
-        ))
-      }
+          ))
+        }
+        </Scrollbars>
+      </Popover>
     </div>
-    </Popover>
-  </div>
-  )
+  );
 });
 
-
 function Header({
-  user, file
+  user, file, fileIsRunned,
 }) {
   const [isOpenCreateFileDialog, setIsOpenCreateFileDialog] = React.useState(false);
   const [isOpenFileSettingsDialog, setIsOpenFileSettingsDialog] = React.useState(false);
   const [isOpenShareDialog, setIsOpenShareDialog] = React.useState(false);
   const [anchorElSettings, setAnchorElSettings] = React.useState(null);
   const [anchorElAccount, setAnchorElAccount] = React.useState(null);
-  
+
+  function downloadHandler() {
+    if (!textEditor.text || !file.name) return;
+
+    downloadFile(textEditor.text, file.name);
+  }
 
   return (
     <div id="workspace_Header" style={{ width: '100%', height: HEADER_HEIGHT, background: COLORS.WHITE }}>
@@ -253,8 +247,8 @@ function Header({
         <div id="workspace_Header_filename" style={{ ...FONTS.H2, color: COLORS.TEXT_GRAY, marginLeft: 14 }}>{(file) ? file.name : 'Unknown'}</div>
         <div style={{}}>
           <Button id="workspace_Header_NewButton" style={HEADER_BUTTON_STYLE} onClick={() => setIsOpenCreateFileDialog(true)}>New</Button>
-          <Button id="workspace_Header_RunButton" style={HEADER_BUTTON_STYLE} onClick={() => {}}>Run</Button>
-          <Button id="workspace_Header_DownloadButton" style={HEADER_BUTTON_STYLE} onClick={() => {}}>Download</Button>
+          <Button id="workspace_Header_RunButton" disabled={fileIsRunned} style={HEADER_BUTTON_STYLE} onClick={() => { sendRunFile(); }}>Run</Button>
+          <Button id="workspace_Header_DownloadButton" style={HEADER_BUTTON_STYLE} onClick={downloadHandler}>Download</Button>
           <Button id="workspace_Header_SettingsButton" style={HEADER_BUTTON_STYLE} onClick={(event) => setAnchorElSettings(event.currentTarget)}>Settings</Button>
         </div>
       </div>
@@ -271,8 +265,8 @@ function Header({
       >
         SHARE CODE
       </Button>
-     
-     <ActiveUsersList />
+
+      <ActiveUsersList />
 
       <CreateFileDialog
         user={user}
@@ -284,7 +278,7 @@ function Header({
         onClose={() => setIsOpenFileSettingsDialog(false)}
       />
       <ShareDialog open={isOpenShareDialog} onClose={() => setIsOpenShareDialog(false)} />
-      <Popover //settings popover
+      <Popover // settings popover
         open={!!anchorElSettings}
         anchorEl={anchorElSettings}
         onClose={() => setAnchorElSettings(null)}
@@ -307,7 +301,7 @@ function Header({
         >
           Change file configurations
         </Button>
-      </Popover>      
+      </Popover>
       <Popover // Main user popover
         open={!!anchorElAccount}
         anchorEl={anchorElAccount}
@@ -328,7 +322,7 @@ function Header({
           <div style={{ ...FONTS.H3, color: COLORS.BLACK }}>{user.username}</div>
           <Button id="workspace_Header_mainAvatarPopover_ViewProfileButton" style={{ ...POPOVER_BUTTON_STYLE, padding: 0, justifyContent: 'left' }} fullWidth onClick={() => { openPage(ACCOUNT_PAGE_NAME); }}>View profile</Button>
           <Divider />
-          <Button id="workspace_Header_mainAvatarPopover_LogoutButton" style={{ ...POPOVER_BUTTON_STYLE, padding: 0, justifyContent: 'left' }} fullWidth onClick={() => { toLogin(); }}>Log out</Button>
+          <Button id="workspace_Header_mainAvatarPopover_LogoutButton" style={{ ...POPOVER_BUTTON_STYLE, padding: 0, justifyContent: 'left' }} fullWidth onClick={() => { toLogin(false); }}>Log out</Button>
         </div>
       </Popover>
     </div>
@@ -341,7 +335,7 @@ function mapToState(state) {
 
     activeUsers: state.documentData.activeUsers,
     countActiveUsers: state.documentData.activeUsers.length,
-
+    fileIsRunned: state.documentData.fileIsRunned,
   };
 }
 export default connect(mapToState)(Header);

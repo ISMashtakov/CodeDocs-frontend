@@ -8,7 +8,7 @@ import COLORS from '../style/colors';
 import FONTS from '../style/fonts';
 
 export default function CustomDialog({
-  icon, title, children, onCancel, isOpen, onAction, actionText,
+  icon, title, children, onCancel, isOpen, onAction, actionText, contentStyle = {},
 }) {
   return (
     <Dialog
@@ -24,7 +24,7 @@ export default function CustomDialog({
         <img src={icon} alt="icon" style={{ height: 30, width: 'auto' }} />
         <span style={{ paddingTop: 5, marginLeft: 15 }}>{title}</span>
       </div>
-      <DialogContent>
+      <DialogContent style={{ ...contentStyle }}>
         {children}
       </DialogContent>
       {onAction === undefined ? null

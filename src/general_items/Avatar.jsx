@@ -1,19 +1,21 @@
 import React from 'react';
-import Tooltip from '@material-ui/core/Tooltip';
-import { withStyles } from '@material-ui/core/styles';
+import viewerIcon from '../images/icons/viewer_grey.png';
+import editorIcon from '../images/icons/editor_grey.png';
+import ownerIcon from '../images/icons/owner_grey.png';
 
 import COLORS from '../style/colors';
 import FONTS from '../style/fonts';
-import { ACCESS_TYPES_NUMBER_TO_STRING } from '../helpers/file';
+import { ACCESS_TYPES_NUMBER_TO_STRING, ACCESS_TYPES } from '../helpers/file';
+import { CustomTooltip } from '../style/style';
 
-const CustomTooltip = withStyles({
-  tooltip: {
-    background: COLORS.TEXT_DARK_GRAY,
-  },
-})(Tooltip);
+const ACCESS_ICON_MAP = {
+  [ACCESS_TYPES.OWNER]: ownerIcon,
+  [ACCESS_TYPES.EDITOR]: editorIcon,
+  [ACCESS_TYPES.VIEWER]: viewerIcon,
+};
 
 function Avatar({
-  user, style, onClick, id, showTip = false,
+  user, style, onClick, id, showTip = false, showAccess = false,
 }) {
   return (
     <CustomTooltip
@@ -32,6 +34,17 @@ function Avatar({
         onClick={onClick}
       >
         <span style={{ margin: 'auto' }}>{user.shortName}</span>
+        {showAccess
+          ? (
+            <div
+              style={{
+                background: COLORS.WHITE, display: 'inline', position: 'absolute', borderRadius: '50%', width: 20, height: 20, right: -5, bottom: -5,
+              }}
+            >
+              <img src={ACCESS_ICON_MAP[user.access]} alt="icon" style={{ marginTop: 2, marginLeft: 2 }} />
+            </div>
+          )
+          : null}
       </div>
     </CustomTooltip>
   );

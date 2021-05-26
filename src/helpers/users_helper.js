@@ -10,15 +10,23 @@ export const MAIN_FILES_URL = `${SERVER_URL}/file`;
 export const GET_MY_FILES_URL = `${MAIN_FILES_URL}/my`;
 export const CREATE_FILE_URL = `${MAIN_FILES_URL}/create_file/`;
 export const DELETE_FILE_URL = `${MAIN_FILES_URL}/delete_file/`;
+export const LEAVE_FILE_URL = `${MAIN_FILES_URL}/leave_file/`;
 export const OPEN_FILE_URL = `${MAIN_FILES_URL}/open_file/`;
 
 class UsersApi {
   async getMe(user) {
     try {
       const result = await get(GET_USER_URL, undefined, user);
-      return await result.json();
+      switch (result.status) {
+        case 401:
+          return { isGood: false };
+        case 200:
+          return { data: await result.json(), isGood: true };
+        default:
+          return { isGood: false };
+      }
     } catch (err) {
-      return null;
+      return { isGood: false };
     }
   }
 
@@ -129,6 +137,25 @@ class UsersApi {
     }
   }
 
+  async leaveFile(user, id) {
+    const params = {
+      file_id: id,
+    };
+    try {
+      const result = await post(LEAVE_FILE_URL, params, user);
+      switch (result.status) {
+        case 400:
+          return { reason: await result.json(), isGood: false };
+        case 200:
+          return { isGood: true };
+        default:
+          return { reason: [], isGood: false };
+      }
+    } catch (err) {
+      return { reason: [], isGood: false };
+    }
+  }
+
   async getFileLink(id, user) {
     const params = {
       file_id: id,
@@ -145,6 +172,25 @@ class UsersApi {
       }
     } catch (err) {
       return { reason: '', isGood: false };
+    }
+  }
+
+  async deleteUser(user, password) {
+    const params = {
+      current_password: password,
+    };
+    try {
+      const result = await post(GET_USER_URL, params, user, 'DELETE');
+      switch (result.status) {
+        case 400:
+          return { reason: await result.json(), isGood: false };
+        case 204:
+          return { isGood: true };
+        default:
+          return { reason: {}, isGood: false };
+      }
+    } catch (err) {
+      return { reason: {}, isGood: false };
     }
   }
 }

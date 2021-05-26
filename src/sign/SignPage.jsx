@@ -20,11 +20,13 @@ import { MainUser } from '../helpers/user';
 import * as mainStyle from '../style/style';
 import { setProblems, setWrongLogin } from './actions';
 import { openPage } from '../helpers/general_helpers';
+import CustomDialog from '../general_items/CustomDialog'
+import changePasswordIcon from '../images/icons/change_password_blue.png';
 
-const BUTTON_STYLE = {
+export const BUTTON_STYLE = {
   ...mainStyle.BUTTON_STYLE, width: '404px',
 };
-const PANEL_STYLE = {
+export const PANEL_STYLE = {
   borderRadius: '6px', display: 'inline-block', boxShadow: '0px 4px 14px rgba(0, 0, 0, 0.1)', padding: '15px 25px', marginTop: 52, background: COLORS.WHITE,
 };
 const FORGOT_TEXT_STYLE = {
@@ -34,7 +36,7 @@ const LOGIN_ERROR_TEXT_STYLE = {
   ...FONTS.H3, color: COLORS.TEXT_RED,
 };
 
-function PasswordField({
+export function PasswordField({
   value, onChange, id, onKeyDown, errorText = '',
 }) {
   const [showPassword, setShowPassword] = React.useState(false);
@@ -122,7 +124,7 @@ const SignUp = connect(mapStateToPropsSignUp,
   async function handlerSignUp() {
     const result = await authApi.signUp(username, mail, password);
     if (result.isGood) {
-      enqueueSnackbar({ text: 'Activation mail was sended!', type: 'success' });
+      enqueueSnackbar({ text: 'Activation email was sended!', type: 'success' });
     } else {
       setProblemsDispatched(result);
     }
@@ -176,7 +178,12 @@ const LogIn = connect(mapStateToPropsLogIn, {
 })(({ wrongLogin, setWrongLoginDispatched }) => {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [sendPasswordWindowIsOpen, setSendPasswordWindowIsOpen] = React.useState(false)
+  const [resetPasswordMail, setResetPasswordMail] = React.useState('');
+  const [errors, setErrors] = React.useState({});
+  const { enqueueSnackbar } = useSnackbar();
 
+  
   async function handlerLogIn() {
     const result = await authApi.logIn(username, password);
     if (result.isGood) {
@@ -190,6 +197,23 @@ const LogIn = connect(mapStateToPropsLogIn, {
     }
   }
 
+  async function ResetPassword() {
+    if(resetPasswordMail === ''){
+      enqueueSnackbar({ text: 'Field can not be empty!', type: 'error' });
+      return;
+    }
+
+    const response = await authApi.resetPassword(resetPasswordMail);
+    if (response.isGood) {
+      enqueueSnackbar({ text: 'Reset password email was sended!', type: 'success' });
+      setSendPasswordWindowIsOpen(false);
+
+      setErrors({});
+    } else {
+      setErrors(response.reason);
+    }
+  }
+
   return (
     <div>
       <div style={PANEL_STYLE} id="sign_SignPage_LogInTab_div">
@@ -197,11 +221,11 @@ const LogIn = connect(mapStateToPropsLogIn, {
           ? (
             <div style={{ ...LOGIN_ERROR_TEXT_STYLE, display: 'inline-flex', marginBottom: 20 }}>
               <ErrorOutlineOutlinedIcon style={{ marginRight: 20 }} />
-              Username or login is incorrect
+              Username or password is incorrect
             </div>
           )
           : null}
-        <div style={mainStyle.TEXT_FIELD_TEXT_STYLE}>Username or Mail</div>
+        <div style={mainStyle.TEXT_FIELD_TEXT_STYLE}>Username or Email</div>
         <TextField
           id="sign_SignPage_LogInTab_UsernameTextField"
           variant="outlined"
@@ -221,7 +245,7 @@ const LogIn = connect(mapStateToPropsLogIn, {
           onChange={(event) => setPassword(event.target.value)}
         />
         <div>
-          <a href="#0" style={FORGOT_TEXT_STYLE}>Forgot password?</a>
+          <a href="#" style={FORGOT_TEXT_STYLE} onClick={()=>setSendPasswordWindowIsOpen(true)}>Forgot password?</a>
         </div>
         <Button id="sign_SignPage_LogInTab_LoginButton" variant="contained" disableElevation onClick={handlerLogIn} style={{ ...BUTTON_STYLE, marginTop: 20 }}>LOGIN</Button>
       </div>
@@ -233,6 +257,27 @@ const LogIn = connect(mapStateToPropsLogIn, {
           </Typography>
         </div>
       </div>
+      <CustomDialog
+        icon={changePasswordIcon}
+        title="Reset password"
+        onCancel={() => setSendPasswordWindowIsOpen(false)}
+        isOpen={sendPasswordWindowIsOpen}
+        onAction={ResetPassword}
+        actionText="Reset"
+      >
+        <div style={{ ...mainStyle.TEXT_FIELD_TEXT_STYLE, marginTop: 20 }}>Email</div>
+        <TextField
+          variant="outlined"
+          id="sign_SignPage_LogInTab_ResetPasswordWindow_EmailField"
+          style={{ ...mainStyle.TEXT_FIELD_STYLE, width: 470 }}
+          InputProps={{ style: mainStyle.TEXT_FIELD_INPUT_PROPS_STYLE }}
+          value={resetPasswordMail}
+          type="email"
+          error={!!errors.email}
+          helperText={errors.email}
+          onChange={(event) => setResetPasswordMail(event.target.value)}
+        />
+      </CustomDialog>
     </div>
 
   );

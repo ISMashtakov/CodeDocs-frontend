@@ -1,7 +1,8 @@
 import store from '../redux/store';
 import {
   setFileAction, addActiveUserAction, deleteActiveUserAction,
-  setActiveUsersAction, setAllUsersAction, addUserAction,
+  setActiveUsersAction, setAllUsersAction, addUserAction, updateAction,
+  setRunFileStatusAction, setConsoleTextAction, addConsoleTextAction,
 } from './actions';
 import { setMainUserAction } from '../redux/actions';
 import File from '../helpers/file';
@@ -34,6 +35,8 @@ function newUser(body) {
 function deleteUser(body) {
   const user = User.decodeDict(body);
   store.dispatch(deleteActiveUserAction(user));
+  delete textEditor[0].usersCursorsPositions[user.id];
+  store.dispatch(updateAction());
 }
 
 // On requests
@@ -45,13 +48,30 @@ function fileInfo(body) {
 }
 
 function setAllUsers(body) {
+  const { generalData } = store.getState();
   const users = body.users.map((item) => User.decodeDict(item));
+  users.forEach((user) => {
+    if (user.username === generalData.mainUser.username) {
+      generalData.mainUser.id = user.id;
+      store.dispatch(setMainUserAction(generalData.mainUser));
+    }
+  });
+
   store.dispatch(setAllUsersAction(users));
+  store.dispatch(updateAction());
+
 }
 
 function setActiveUsers(body) {
   const { generalData } = store.getState();
   let users = body.users.map((item) => User.decodeDict(item));
+  users.forEach((user) => {
+    if (user.username === generalData.mainUser.username) {
+      generalData.mainUser.access = user.access;
+      store.dispatch(setMainUserAction(generalData.mainUser));
+    }
+  });
+
   users = users.filter((user) => user.username !== generalData.mainUser.username);
   store.dispatch(setActiveUsersAction(users));
 }
@@ -104,6 +124,30 @@ function operationHistory(body) {
   });
 }
 
+function changeCursorPosition(body) {
+  const { generalData } = store.getState();
+  if (generalData.mainUser.id === body.user_id) return;
+  textEditor[0].usersCursorsPositions[body.user_id] = body.position;
+  store.dispatch(updateAction());
+}
+
+function startRunFile() {
+  store.dispatch(setRunFileStatusAction(true));
+  store.dispatch(setConsoleTextAction([]));
+}
+
+function fileStatus(body){
+  store.dispatch(setRunFileStatusAction(body.is_running));
+}
+
+function runMessage(body) {
+  store.dispatch(addConsoleTextAction(body.file_output, body.index));
+}
+
+function endRunFile() {
+  store.dispatch(setRunFileStatusAction(false));
+}
+
 const MESSAGE_ACTIONS = {
   channel_name: channelName,
   new_user: newUser,
@@ -118,11 +162,15 @@ const MESSAGE_ACTIONS = {
   change_user_access: changeUserAccess,
   apply_operation: newOperation,
   operation_history: operationHistory,
+  change_cursor_position: changeCursorPosition,
+  file_output: runMessage,
+  file_status: fileStatus,
+  "START run_file": startRunFile,
+  "END run_file": endRunFile,
 };
 
-export const history = [];
 export default function receive(data) {
-  history.push(data);
+  // console.log(data)
   if (data.type in MESSAGE_ACTIONS) {
     MESSAGE_ACTIONS[data.type](data);
   } else {

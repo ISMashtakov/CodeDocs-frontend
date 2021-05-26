@@ -13,7 +13,10 @@ import { useSnackbar } from 'notistack';
 import { MainUser } from '../helpers/user';
 import { toLogin } from '../helpers/auth_helper';
 import { setMainUserAction } from '../redux/actions';
-import { setChangePasswordIsOpenAction, setChangeEmailIsOpenAction, setChangeUsernameIsOpenAction } from './actions';
+import {
+  setChangePasswordIsOpenAction, setChangeEmailIsOpenAction,
+  setChangeUsernameIsOpenAction, setDeleteUserIsOpenAction,
+} from './actions';
 import COLORS from '../style/colors';
 import FONTS from '../style/fonts';
 import * as mainStyle from '../style/style';
@@ -21,6 +24,7 @@ import Avatar from '../general_items/Avatar';
 import ChangePasswordWindow from './ChangePasswordWindow';
 import ChangeEmailWindow from './ChangeEmailWindow';
 import ChangeUsernameWindow from './ChangeUsernameWindow';
+import DeleteUserWindow from './DeleteUserWindow';
 import { DOWNLOAD_STATE } from '../helpers/general_helpers';
 import usersApi from '../helpers/users_helper';
 import CustomDialog from '../general_items/CustomDialog';
@@ -92,8 +96,10 @@ const AccountCard = connect(mapStateToPropsAccountCard, {
   setChangePasswordIsOpen: setChangePasswordIsOpenAction,
   setChangeEmailIsOpen: setChangeEmailIsOpenAction,
   setChangeUsernameIsOpen: setChangeUsernameIsOpenAction,
+  setDeleteUserIsOpen: setDeleteUserIsOpenAction,
 })(({
-  mainUser, setChangePasswordIsOpen, setChangeEmailIsOpen, setChangeUsernameIsOpen,
+  mainUser, setChangePasswordIsOpen, setChangeEmailIsOpen,
+  setChangeUsernameIsOpen, setDeleteUserIsOpen,
 }) => {
   function clickToLogout() {
     mainUser.deleteFromLocalStorage();
@@ -135,7 +141,7 @@ const AccountCard = connect(mapStateToPropsAccountCard, {
         id="account_AccountPage_AccountCard_emailButton"
       >
         <div style={{ width: 354, textAlign: 'start' }}>
-          {`Email: ${mainUser.mail}`}
+          {`Email: ${mainUser.shortMail}`}
           <ArrowForwardIosIcon style={{ ...RIGHT_ARROW_STYLE }} />
         </div>
       </Button>
@@ -154,7 +160,7 @@ const AccountCard = connect(mapStateToPropsAccountCard, {
       </Button>
 
       <Button style={{ ...BLUE_BUTTON_STYLE, marginTop: 15, width: BUTTON_WIDTH }} variant="outlined" onClick={clickToLogout} id="account_AccountPage_AccountCard_logoutButton">LOG OUT</Button>
-      <Button style={{ ...RED_BUTTON_STYLE, marginTop: 30, width: BUTTON_WIDTH }} variant="outlined" id="account_AccountPage_AccountCard_deleteButton">DELETE ACCOUNT</Button>
+      <Button style={{ ...RED_BUTTON_STYLE, marginTop: 30, width: BUTTON_WIDTH }} variant="outlined" onClick={() => setDeleteUserIsOpen(true)} id="account_AccountPage_AccountCard_deleteButton">DELETE ACCOUNT</Button>
     </div>
   );
 });
@@ -171,6 +177,7 @@ const FileRow = connect(mapStateToPropsFileRow, {
   file, selected, mainUser, setMainUser, onClick,
 }) => {
   const [dialogIsOpen, setDialogIsOpen] = React.useState(false);
+  const [leaveDialogIsOpen, setLeaveDialogIsOpen] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
 
   async function clickToDelete() {
@@ -203,11 +210,41 @@ const FileRow = connect(mapStateToPropsFileRow, {
     );
   }
 
+  async function clickToLeave() {
+    const response = await usersApi.leaveFile(mainUser, file.id);
+    if (response.isGood) {
+      mainUser.deleteFile(file.id);
+      setMainUser(mainUser);
+    } else if (response.reason.length > 0) {
+      enqueueSnackbar({ text: response.reason.join('\n'), type: 'error' });
+    }
+  }
+
+  function LeaveConfirm() {
+    return (
+      <CustomDialog
+        icon={removeFileIcon}
+        title="Leave from file"
+        onCancel={() => setLeaveDialogIsOpen(false)}
+        isOpen={leaveDialogIsOpen}
+        onAction={clickToLeave}
+        actionText="Leave"
+      >
+        <div style={{
+          ...FONTS.H3, color: COLORS.TEXT_DARK_GRAY, margin: '20px 0px', width: 470,
+        }}
+        >
+          Are you sure you want to leave from file?
+        </div>
+      </CustomDialog>
+    );
+  }
+
   function FileButton() {
     if (file.isOwner) {
       return (<Button style={{ ...RED_BUTTON_STYLE, width: 80 }} onClick={() => setDialogIsOpen(true)} variant="outlined">DELETE</Button>);
     }
-    return (<Button style={{ ...BLUE_BUTTON_STYLE, width: 80 }} variant="outlined">LEAVE</Button>);
+    return (<Button style={{ ...BLUE_BUTTON_STYLE, width: 80 }} onClick={() => setLeaveDialogIsOpen(true)} variant="outlined">LEAVE</Button>);
   }
 
   return (
@@ -220,6 +257,7 @@ const FileRow = connect(mapStateToPropsFileRow, {
       </TableCell>
       <TableCell style={{ ...FILE_ROW_STYLE }}><FileButton /></TableCell>
       <DeleteConfirm />
+      <LeaveConfirm />
     </TableRow>
   );
 });
@@ -315,6 +353,24 @@ const FilesPanel = connect(mapStateToPropsFilesPanel, {
   let files = (selectedTab === 0) ? mainUser.files : mainUser.myFiles;
   if (files) files = files.slice().reverse();
 
+  function FilesData(){
+    if (files.length === 0){
+      return(
+      <TableRow>
+        <TableCell style={{...FONTS.BODY}}>There are no files here yet</TableCell>
+      </TableRow>)
+    }
+
+    return(files.map((file) => (
+              <FileRow
+                key={file.id}
+                file={file}
+                onClick={() => setSelectedFile(file.id)}
+                selected={selectedFile === file.id}
+              />
+            )))
+  }
+
   return (
     <div style={{ float: 'left', marginLeft: 79 + 354 }} id="account_AccountPage_FilesPanel_div">
       <div id="account_AccountPage_FilesPanel_filetypesDiv">
@@ -352,14 +408,7 @@ const FilesPanel = connect(mapStateToPropsFilesPanel, {
           <TableBody>
             {
               (mainUser.filesIsUpdated)
-                ? files.map((file) => (
-                  <FileRow
-                    key={file.id}
-                    file={file}
-                    onClick={() => setSelectedFile(file.id)}
-                    selected={selectedFile === file.id}
-                  />
-                ))
+                ? <FilesData/>
                 : (
                   <TableRow>
                     <TableCell>
@@ -424,6 +473,7 @@ function AccountPage({ mainUser, setMainUser }) {
         <ChangePasswordWindow />
         <ChangeEmailWindow />
         <ChangeUsernameWindow />
+        <DeleteUserWindow />
       </div>
     </form>
   );

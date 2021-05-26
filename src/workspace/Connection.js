@@ -34,6 +34,7 @@ class Connection {
       this.queueMessage.push(content);
     }
     if (this.isConnect) {
+      // console.log(this.queueMessage)
       this.queueMessage.forEach((item) => this.socket.send(item));
       this.queueMessage = [];
     }

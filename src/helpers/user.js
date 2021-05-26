@@ -17,6 +17,16 @@ export class User {
     return this.username[0];
   }
 
+  get shortMail() {
+    if(!this.mail)
+      return this.mail
+
+    if (this.mail.length > 20){
+      return this.mail.slice(0, 20) + '...'
+    }
+    return this.mail
+  }
+
   get isOwner() {
     return this.access === ACCESS_TYPES.OWNER;
   }
@@ -93,11 +103,11 @@ export class MainUser extends User {
   }
 
   async updateInfoFromServer() {
-    const data = await usersApi.getMe(this);
-    if (data) {
-      this.color = data.account_color;
-      this.username = data.username;
-      this.mail = data.email;
+    const result = await usersApi.getMe(this);
+    if (result.isGood) {
+      this.color = result.data.account_color;
+      this.username = result.data.username;
+      this.mail = result.data.email;
       return true;
     }
     return false;

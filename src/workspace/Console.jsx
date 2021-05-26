@@ -15,7 +15,9 @@ let mouseDownY = null;
 let mouseMoveListener = null;
 let mouseUpListener = null;
 let startConsoleHeight = 0;
-function Console({ consoleHeight, setConsoleHeight, consoleDoubleClick }) {
+function Console({
+  consoleHeight, text, setConsoleHeight, consoleDoubleClick,
+}) {
   let onMouseMove = null;
   let onMouseUp = null;
 
@@ -58,9 +60,10 @@ function Console({ consoleHeight, setConsoleHeight, consoleDoubleClick }) {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   });
+
   return (
-    <Box style={{
-      position: 'absolute', bottom: CONSOLE_BOTTOM_SPACE, height: consoleHeight, left: 70, right: 97,
+    <div style={{
+      position: 'absolute', bottom: CONSOLE_BOTTOM_SPACE, height: consoleHeight, left: 70, right: 97, minWidth: 800,
     }}
     >
       <div style={{ height: CONSOLE_HEADER_HEIGHT, backgroundColor: COLORS.GRAY2, cursor: 'ns-resize' }} onMouseDown={onMouseDown} onDoubleClick={consoleDoubleClick}>
@@ -71,18 +74,26 @@ function Console({ consoleHeight, setConsoleHeight, consoleDoubleClick }) {
           Console
         </span>
       </div>
-      <div style={{
-        height: consoleHeight - CONSOLE_HEADER_HEIGHT,
-        backgroundColor: COLORS.WHITE,
-      }}
-      />
-    </Box>
+      <Box
+        style={{
+          height: consoleHeight - CONSOLE_HEADER_HEIGHT,
+          backgroundColor: COLORS.WHITE,
+        }}
+        overflow="auto"
+      >
+        <pre style={{ margin: 0 }}>
+          {text.filter(i=>i !== undefined).join("")}
+        </pre>
+      </Box>
+    </div>
   );
 }
 
 function mapToState(state) {
   return {
     consoleHeight: state.documentData.consoleHeight,
+    text: state.documentData.consoleText,
+    length: state.documentData.consoleText.length,
   };
 }
 

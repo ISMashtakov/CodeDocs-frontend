@@ -189,6 +189,8 @@ export class Neutral extends Operation {
   getMessage() {
     return {
       type: Neutral.id,
+      position: null,
+      text: null,
     };
   }
 

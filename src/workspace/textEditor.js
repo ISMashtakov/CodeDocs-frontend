@@ -14,7 +14,7 @@ export class StorageOperation {
     };
   }
 
-  constructor(operation, type = 0) {
+  constructor(operation, type = StorageOperation.TYPES.APPLIED) {
     this.operation = operation;
     this.type = type;
   }
@@ -42,6 +42,7 @@ class TextEditor {
     this.cursor = null;
     this.anchor = null;
     this.showedNotification = false;
+    this.usersCursorsPositions = {};
   }
 
   trySend() {
@@ -69,6 +70,10 @@ class TextEditor {
 
     anchorPos = operation.changePosition(anchorPos);
     this.anchor = Cursor.fromPos(this.text, anchorPos);
+
+    Object.keys(this.usersCursorsPositions).forEach((key) => {
+      this.usersCursorsPositions[key] = operation.changePosition(this.usersCursorsPositions[key]);
+    });
   }
 
   updateNotAprovedOperations(operation) {
@@ -121,6 +126,24 @@ class TextEditor {
     }
     return null;
   }
+
+  // undo(){
+  //   if (this.notApprovedOperations.length > 0){
+  //     for(let i = this.notApprovedOperations.length - 1; i>=0; i-=1){
+  //       const oper = this.notApprovedOperations[i];
+  //       if (oper.type === )
+  //       this.applyOperation(oper.oposite)
+  //       return;
+  //     }
+  //   }
+  //   if(this.operationWaitedApprove !== null){
+  //     const oper = this.operationWaitedApprove
+  //     this.applyOperation(oper.oposite)
+  //     this.notApprovedOperations.push(oper.oposite)
+  //     return;
+  //   }
+
+  // }
 }
 
 const textEditor = new TextEditor();

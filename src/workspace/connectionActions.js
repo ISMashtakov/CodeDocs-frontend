@@ -59,3 +59,18 @@ export function requestOperationHistory(revision) {
   });
   connection.send(data);
 }
+
+export function sendCursorPosition(position) {
+  const data = JSON.stringify({
+    type: 'change_cursor_position',
+    position,
+  });
+  connection.send(data);
+}
+
+export function sendRunFile() {
+  const data = JSON.stringify({
+    type: 'run_file',
+  });
+  connection.send(data);
+}

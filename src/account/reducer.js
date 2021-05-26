@@ -1,10 +1,14 @@
-import { TASK_SET_CHANGE_PASSWORD_IS_OPEN, TASK_SET_CHANGE_EMAIL_IS_OPEN, TASK_SET_CHANGE_USERNAME_IS_OPEN } from './actions';
+import {
+  TASK_SET_CHANGE_PASSWORD_IS_OPEN, TASK_SET_CHANGE_EMAIL_IS_OPEN,
+  TASK_SET_CHANGE_USERNAME_IS_OPEN, TASK_SET_DELETE_USER_IS_OPEN,
+} from './actions';
 
 function getStartState() {
   return {
     changePasswordWindowIsOpen: false,
     changeMailWindowIsOpen: false,
     changeUsernameWindowIsOpen: false,
+    deleteUserWindowIsOpen: false,
   };
 }
 
@@ -18,6 +22,8 @@ export default function accountData(state = START_STATE, action) {
       return { ...state, changeMailWindowIsOpen: action.status };
     case TASK_SET_CHANGE_USERNAME_IS_OPEN:
       return { ...state, changeUsernameWindowIsOpen: action.status };
+    case TASK_SET_DELETE_USER_IS_OPEN:
+      return { ...state, deleteUserWindowIsOpen: action.status };
     default:
       return state;
   }
