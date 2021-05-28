@@ -68,7 +68,7 @@ class TommorowNightBright {
 
 class Kuroir {
   constructor() {
-    this.className = '.ace-tomorrow-night-bright';
+    this.className = '.ace-kuroir';
     this.color = '#363636';
     this.keywordColor = '#363636';
     this.gutterColor = '#333333';
