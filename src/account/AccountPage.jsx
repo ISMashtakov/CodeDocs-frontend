@@ -242,9 +242,9 @@ const FileRow = connect(mapStateToPropsFileRow, {
 
   function FileButton() {
     if (file.isOwner) {
-      return (<Button style={{ ...RED_BUTTON_STYLE, width: 80 }} onClick={() => setDialogIsOpen(true)} variant="outlined">DELETE</Button>);
+      return (<Button style={{ ...RED_BUTTON_STYLE, width: 80 }} onClick={(e) => { e.stopPropagation(); setDialogIsOpen(true); }} variant="outlined">DELETE</Button>);
     }
-    return (<Button style={{ ...BLUE_BUTTON_STYLE, width: 80 }} onClick={() => setLeaveDialogIsOpen(true)} variant="outlined">LEAVE</Button>);
+    return (<Button style={{ ...BLUE_BUTTON_STYLE, width: 80 }} onClick={(e) => { e.stopPropagation(); setLeaveDialogIsOpen(true); }} variant="outlined">LEAVE</Button>);
   }
 
   return (
@@ -344,7 +344,6 @@ const FilesPanel = connect(mapStateToPropsFilesPanel, {
         setMainUser(mainUser);
       } else {
         setUpdateFilesState(DOWNLOAD_STATE.FAIL);
-        // alert("problem during getting files")
       }
     }
     setUpdateFilesState(DOWNLOAD_STATE.DOWNLOAD);
@@ -353,22 +352,23 @@ const FilesPanel = connect(mapStateToPropsFilesPanel, {
   let files = (selectedTab === 0) ? mainUser.files : mainUser.myFiles;
   if (files) files = files.slice().reverse();
 
-  function FilesData(){
-    if (files.length === 0){
-      return(
-      <TableRow>
-        <TableCell style={{...FONTS.BODY}}>There are no files here yet</TableCell>
-      </TableRow>)
+  function FilesData() {
+    if (files.length === 0) {
+      return (
+        <TableRow>
+          <TableCell style={{ ...FONTS.BODY }}>There are no files here yet</TableCell>
+        </TableRow>
+      );
     }
 
-    return(files.map((file) => (
-              <FileRow
-                key={file.id}
-                file={file}
-                onClick={() => setSelectedFile(file.id)}
-                selected={selectedFile === file.id}
-              />
-            )))
+    return (files.map((file) => (
+      <FileRow
+        key={file.id}
+        file={file}
+        onClick={() => setSelectedFile(file.id)}
+        selected={selectedFile === file.id}
+      />
+    )));
   }
 
   return (
@@ -408,7 +408,7 @@ const FilesPanel = connect(mapStateToPropsFilesPanel, {
           <TableBody>
             {
               (mainUser.filesIsUpdated)
-                ? <FilesData/>
+                ? <FilesData />
                 : (
                   <TableRow>
                     <TableCell>

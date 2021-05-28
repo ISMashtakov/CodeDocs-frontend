@@ -11,6 +11,7 @@ export const TASK_SET_RUN_FILE_STATUS = 'SET_RUN_FILE_STATUS';
 export const TASK_SET_CONSOLE_TEXT = 'SET_CONSOLE_TEXT';
 export const TASK_ADD_CONSOLE_TEXT = 'ADD_CONSOLE_TEXT';
 export const TASK_SET_HOVER_CURSOR = 'SET_HOVER_CURSOR';
+export const TASK_SET_WORKSPACE_STYLE = 'SET_WORKSPACE_STYLE';
 
 export function updateAction() {
   return {
@@ -91,13 +92,20 @@ export function addConsoleTextAction(text, index) {
   return {
     type: TASK_ADD_CONSOLE_TEXT,
     text,
-    index
+    index,
   };
 }
 
 export function setHoverCursorAction(value) {
   return {
     type: TASK_SET_HOVER_CURSOR,
+    value,
+  };
+}
+
+export function setWorkspaceStyleAction(value) {
+  return {
+    type: TASK_SET_WORKSPACE_STYLE,
     value,
   };
 }

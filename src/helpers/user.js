@@ -18,13 +18,12 @@ export class User {
   }
 
   get shortMail() {
-    if(!this.mail)
-      return this.mail
+    if (!this.mail) return this.mail;
 
-    if (this.mail.length > 20){
-      return this.mail.slice(0, 20) + '...'
+    if (this.mail.length > 20) {
+      return `${this.mail.slice(0, 20)}...`;
     }
-    return this.mail
+    return this.mail;
   }
 
   get isOwner() {

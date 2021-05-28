@@ -59,7 +59,6 @@ function setAllUsers(body) {
 
   store.dispatch(setAllUsersAction(users));
   store.dispatch(updateAction());
-
 }
 
 function setActiveUsers(body) {
@@ -136,7 +135,7 @@ function startRunFile() {
   store.dispatch(setConsoleTextAction([]));
 }
 
-function fileStatus(body){
+function fileStatus(body) {
   store.dispatch(setRunFileStatusAction(body.is_running));
 }
 
@@ -144,7 +143,8 @@ function runMessage(body) {
   store.dispatch(addConsoleTextAction(body.file_output, body.index));
 }
 
-function endRunFile() {
+function endRunFile(body) {
+  store.dispatch(addConsoleTextAction(`\n\nProcess finished with exit code ${body.exit_code}`, -1));
   store.dispatch(setRunFileStatusAction(false));
 }
 
@@ -165,15 +165,12 @@ const MESSAGE_ACTIONS = {
   change_cursor_position: changeCursorPosition,
   file_output: runMessage,
   file_status: fileStatus,
-  "START run_file": startRunFile,
-  "END run_file": endRunFile,
+  'START run_file': startRunFile,
+  'END run_file': endRunFile,
 };
 
 export default function receive(data) {
-  // console.log(data)
   if (data.type in MESSAGE_ACTIONS) {
     MESSAGE_ACTIONS[data.type](data);
-  } else {
-    // console.error(`${data.type} unknown `); TODO DELETE IT
   }
 }

@@ -2,9 +2,10 @@ import {
   TASK_SET_CONSOLE_HEIGHT, TASK_CONSOLE_DOUBLE_CLICK, TASK_SET_FILE,
   TASK_ADD_ACTIVE_USER, TASK_DELETE_ACTIVE_USER, TASK_SET_ACTIVE_USERS, TASK_SET_ALL_USERS,
   TASK_ADD_USER, TASK_UPDATE, TASK_SET_RUN_FILE_STATUS, TASK_ADD_CONSOLE_TEXT,
-  TASK_SET_CONSOLE_TEXT, TASK_SET_HOVER_CURSOR,
+  TASK_SET_CONSOLE_TEXT, TASK_SET_HOVER_CURSOR, TASK_SET_WORKSPACE_STYLE,
 } from './actions';
-import { CONSOLE_HEADER_HEIGHT } from './Console';
+import { CONSOLE_HEADER_HEIGHT } from '../constants';
+import WorkspaceStyle from '../helpers/workspace_style';
 
 const HEADER_HEIGHT = 75;
 const MIN_CONSOLE_HEIGHT = CONSOLE_HEADER_HEIGHT;
@@ -19,6 +20,7 @@ function getStartState() {
     fileIsRunned: false,
     consoleText: [],
     hoverCursor: null,
+    workspaceStyle: WorkspaceStyle.load(),
   };
 }
 
@@ -79,12 +81,17 @@ export default function documentData(state = START_STATE, action) {
       return { ...state, consoleText: action.text };
 
     case TASK_ADD_CONSOLE_TEXT:
-      const consoleText = state.consoleText
-      consoleText[action.index] = action.text
+      const consoleText = state.consoleText;
+      if (action.index === -1) consoleText.push(action.text);
+      else consoleText[action.index] = action.text;
       return { ...state, consoleText };
 
     case TASK_SET_HOVER_CURSOR:
       return { ...state, hoverCursor: action.value };
+
+    case TASK_SET_WORKSPACE_STYLE:
+      action.value.save();
+      return { ...state, workspaceStyle: action.value, forUpdate: state.forUpdate + 1 };
 
     default:
       return state;

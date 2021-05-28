@@ -5,6 +5,7 @@ import Popover from '@material-ui/core/Popover';
 import { useSnackbar } from 'notistack';
 import Divider from '@material-ui/core/Divider';
 import { Scrollbars } from 'react-custom-scrollbars';
+import Checkbox from '@material-ui/core/Checkbox';
 
 import COLORS from '../style/colors';
 import FONTS from '../style/fonts';
@@ -20,9 +21,10 @@ import usersApi from '../helpers/users_helper';
 import { toLogin } from '../helpers/auth_helper';
 import { openPage, downloadFile } from '../helpers/general_helpers';
 import { ACCOUNT_PAGE_NAME } from '../constants';
-import { sendFileSettings, sendRunFile } from './connectionActions';
+import { sendFileSettings, sendRunFile, sendStopFile } from './connectionActions';
 import ShareDialog from './ShareDialog';
 import textEditor from './textEditor';
+import StyleSettingsDialog from './StyleSettingsDialog';
 
 export const HEADER_HEIGHT = 75;
 const MAX_SHOWED_USERS = 5;
@@ -35,9 +37,12 @@ const POPOVER_BUTTON_STYLE = {
   ...mainStyle.OUTLINED_BUTTON_STYLE, ...FONTS.BODY, textTransform: 'none', height: 35,
 };
 
-function CreateFileDialog({ user, open, onClose }) {
+function CreateFileDialog({
+  user, open, onClose, fileId,
+}) {
   const [filename, setFilename] = React.useState('');
   const [language, setLanguage] = React.useState('python');
+  const [saveCol, setSaveCol] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
 
   async function clickToCreate() {
@@ -46,7 +51,12 @@ function CreateFileDialog({ user, open, onClose }) {
       return;
     }
 
-    const response = await usersApi.createFile(user, filename, language);
+    const response = await usersApi.createFile(
+      user,
+      filename,
+      language,
+      saveCol ? fileId : undefined,
+    );
     if (response.isGood) {
       const file = new File(response.id, filename, language, ACCESS_TYPES.OWNER);
       file.open(user);
@@ -72,6 +82,16 @@ function CreateFileDialog({ user, open, onClose }) {
           language={language}
           onChangeLanguage={(event) => { setLanguage(event.target.value); }}
         />
+        <div>
+          <Checkbox
+            checked={saveCol}
+            onChange={(e) => setSaveCol(e.target.checked)}
+            style={{ color: COLORS.BUTTON_BLUE }}
+          />
+          <span style={FONTS.BODY}>
+            Remember participants
+          </span>
+        </div>
       </div>
     </CustomDialog>
   );
@@ -223,6 +243,7 @@ function Header({
 }) {
   const [isOpenCreateFileDialog, setIsOpenCreateFileDialog] = React.useState(false);
   const [isOpenFileSettingsDialog, setIsOpenFileSettingsDialog] = React.useState(false);
+  const [isOpenStyleSettingsDialog, setIsOpenStyleSettingsDialog] = React.useState(false);
   const [isOpenShareDialog, setIsOpenShareDialog] = React.useState(false);
   const [anchorElSettings, setAnchorElSettings] = React.useState(null);
   const [anchorElAccount, setAnchorElAccount] = React.useState(null);
@@ -247,7 +268,11 @@ function Header({
         <div id="workspace_Header_filename" style={{ ...FONTS.H2, color: COLORS.TEXT_GRAY, marginLeft: 14 }}>{(file) ? file.name : 'Unknown'}</div>
         <div style={{}}>
           <Button id="workspace_Header_NewButton" style={HEADER_BUTTON_STYLE} onClick={() => setIsOpenCreateFileDialog(true)}>New</Button>
-          <Button id="workspace_Header_RunButton" disabled={fileIsRunned} style={HEADER_BUTTON_STYLE} onClick={() => { sendRunFile(); }}>Run</Button>
+          {
+            fileIsRunned
+              ? <Button id="workspace_Header_RunButton" style={HEADER_BUTTON_STYLE} onClick={() => { sendStopFile(); }}>Stop</Button>
+              : <Button id="workspace_Header_RunButton" style={HEADER_BUTTON_STYLE} onClick={() => { sendRunFile(); }}>Run</Button>
+          }
           <Button id="workspace_Header_DownloadButton" style={HEADER_BUTTON_STYLE} onClick={downloadHandler}>Download</Button>
           <Button id="workspace_Header_SettingsButton" style={HEADER_BUTTON_STYLE} onClick={(event) => setAnchorElSettings(event.currentTarget)}>Settings</Button>
         </div>
@@ -271,6 +296,7 @@ function Header({
       <CreateFileDialog
         user={user}
         open={isOpenCreateFileDialog}
+        fileId={file ? file.id : undefined}
         onClose={() => setIsOpenCreateFileDialog(false)}
       />
       <FileSettingsDialog
@@ -278,6 +304,10 @@ function Header({
         onClose={() => setIsOpenFileSettingsDialog(false)}
       />
       <ShareDialog open={isOpenShareDialog} onClose={() => setIsOpenShareDialog(false)} />
+      <StyleSettingsDialog
+        open={isOpenStyleSettingsDialog}
+        onClose={() => setIsOpenStyleSettingsDialog(false)}
+      />
       <Popover // settings popover
         open={!!anchorElSettings}
         anchorEl={anchorElSettings}
@@ -294,12 +324,24 @@ function Header({
         <Button
           id="workspace_Header_SettingsPopover_ChangeFileButton"
           style={POPOVER_BUTTON_STYLE}
+          fullWidth
           onClick={() => {
             setIsOpenFileSettingsDialog(true);
             setAnchorElSettings(null);
           }}
         >
           Change file configurations
+        </Button>
+        <br />
+        <Button
+          fullWidth
+          style={{ ...POPOVER_BUTTON_STYLE, justifyContent: 'left' }}
+          onClick={() => {
+            setIsOpenStyleSettingsDialog(true);
+            setAnchorElSettings(null);
+          }}
+        >
+          Change style
         </Button>
       </Popover>
       <Popover // Main user popover

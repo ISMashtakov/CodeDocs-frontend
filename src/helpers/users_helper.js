@@ -98,11 +98,14 @@ class UsersApi {
     }
   }
 
-  async createFile(user, name, language) {
+  async createFile(user, name, language, prevFileId) {
     const params = {
       name,
       programming_language: language,
     };
+    if (prevFileId) {
+      params.prev_file_id = prevFileId;
+    }
     try {
       const result = await post(CREATE_FILE_URL, params, user);
       switch (result.status) {

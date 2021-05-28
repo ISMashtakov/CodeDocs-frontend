@@ -20,7 +20,7 @@ import { MainUser } from '../helpers/user';
 import * as mainStyle from '../style/style';
 import { setProblems, setWrongLogin } from './actions';
 import { openPage } from '../helpers/general_helpers';
-import CustomDialog from '../general_items/CustomDialog'
+import CustomDialog from '../general_items/CustomDialog';
 import changePasswordIcon from '../images/icons/change_password_blue.png';
 
 export const BUTTON_STYLE = {
@@ -178,12 +178,11 @@ const LogIn = connect(mapStateToPropsLogIn, {
 })(({ wrongLogin, setWrongLoginDispatched }) => {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
-  const [sendPasswordWindowIsOpen, setSendPasswordWindowIsOpen] = React.useState(false)
+  const [sendPasswordWindowIsOpen, setSendPasswordWindowIsOpen] = React.useState(false);
   const [resetPasswordMail, setResetPasswordMail] = React.useState('');
   const [errors, setErrors] = React.useState({});
   const { enqueueSnackbar } = useSnackbar();
 
-  
   async function handlerLogIn() {
     const result = await authApi.logIn(username, password);
     if (result.isGood) {
@@ -198,7 +197,7 @@ const LogIn = connect(mapStateToPropsLogIn, {
   }
 
   async function ResetPassword() {
-    if(resetPasswordMail === ''){
+    if (resetPasswordMail === '') {
       enqueueSnackbar({ text: 'Field can not be empty!', type: 'error' });
       return;
     }
@@ -245,7 +244,7 @@ const LogIn = connect(mapStateToPropsLogIn, {
           onChange={(event) => setPassword(event.target.value)}
         />
         <div>
-          <a href="#" style={FORGOT_TEXT_STYLE} onClick={()=>setSendPasswordWindowIsOpen(true)}>Forgot password?</a>
+          <a href="#" style={FORGOT_TEXT_STYLE} onClick={() => setSendPasswordWindowIsOpen(true)}>Forgot password?</a>
         </div>
         <Button id="sign_SignPage_LogInTab_LoginButton" variant="contained" disableElevation onClick={handlerLogIn} style={{ ...BUTTON_STYLE, marginTop: 20 }}>LOGIN</Button>
       </div>

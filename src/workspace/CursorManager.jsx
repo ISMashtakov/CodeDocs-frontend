@@ -15,12 +15,10 @@ const CURSOR_WIDTH = 2;
 const CURSOR_HOVER_WIDTH = 5;
 const CURSOR_HEIGHT = 26;
 
-
 let allMarkers = [];
 let lastEditor = null;
 
 export function updateMarkers(editor) {
-
   if (!editor) {
     editor = lastEditor;
   }
@@ -34,7 +32,7 @@ export function updateMarkers(editor) {
   allMarkers = [];
 
   Object.keys(textEditor.usersCursorsPositions).forEach((id) => {
-    const user = allUsers.filter((i) => i.id*1 === id*1 )[0];
+    const user = allUsers.filter((i) => i.id * 1 === id * 1)[0];
     if (user) {
       const pos = textEditor.usersCursorsPositions[id];
       const start = Cursor.fromPos(textEditor.text, pos);
@@ -53,47 +51,42 @@ export function getStyle() {
   return `
     {
     }
-    ` + allUsers.map(({ id, color }) => `.markerFor${id}.ace_start{
+    ${allUsers.map(({ id, color }) => `.markerFor${id}.ace_start{
       background-color: ${color};   
       position: absolute;
       width: ${CURSOR_WIDTH}px !important;
-    }`).join('\n');
+    }`).join('\n')}`;
 }
 
-function isEnter(cur, el){
-  const curPos = {x: cur.clientX, y: cur.clientY}
-  if ("movementX" in cur)
-    curPos.x -= cur.movementX
-  if ("movementY" in cur)
-    curPos.y -= cur.movementY
-  return curPos.x >= el.x && curPos.x <= el.x + CURSOR_HOVER_WIDTH && curPos.y >= el.y && curPos.y <= el.y + CURSOR_HEIGHT
+function isEnter(cur, el) {
+  const curPos = { x: cur.clientX, y: cur.clientY };
+  if ('movementX' in cur) curPos.x -= cur.movementX;
+  if ('movementY' in cur) curPos.y -= cur.movementY;
+  return (curPos.x >= el.x && curPos.x <= el.x + CURSOR_HOVER_WIDTH
+    && curPos.y >= el.y && curPos.y <= el.y + CURSOR_HEIGHT);
 }
 
 export function cursorHoverHandler(e) {
-
-
   const allUsers = store.getState().documentData.allUsers;
-  const ids = Object.keys(textEditor.usersCursorsPositions)
+  const ids = Object.keys(textEditor.usersCursorsPositions);
 
-  for(let i = 0; i < ids.length; i+=1){
+  for (let i = 0; i < ids.length; i += 1) {
     const id = ids[i];
-    const elements = document.getElementsByClassName(`markerFor${id} ace_start` )
-    if(elements.length == 0)
-      continue
+    const elements = document.getElementsByClassName(`markerFor${id} ace_start`);
+    if (elements.length === 0) continue;
 
-    const el = elements[0]
-    const elementPos = el.getBoundingClientRect()
+    const el = elements[0];
+    const elementPos = el.getBoundingClientRect();
 
-    if(isEnter(e, elementPos)){
-      const user = allUsers.filter((i) => i.id*1 === id*1)[0];
-      if (user){
+    if (isEnter(e, elementPos)) {
+      const user = allUsers.filter((j) => j.id * 1 === id * 1)[0];
+      if (user) {
         store.dispatch(setHoverCursorAction({ user, element: el }));
-        lastEditor.on('mousemove', ()=>{});
+        lastEditor.on('mousemove', () => {});
       }
       return;
     }
-
-  };
+  }
 }
 
 function CursorPopover({ cursor, setHover }) {
@@ -102,14 +95,14 @@ function CursorPopover({ cursor, setHover }) {
   }
 
   function cursorMoveHandler(e) {
-    const pos = cursor.element.getBoundingClientRect()
+    const pos = cursor.element.getBoundingClientRect();
     if (!isEnter(e, pos)) {
       setHover(null);
       lastEditor.on('mousemove', cursorHoverHandler);
     }
   }
 
-  const elementPos = cursor.element.getBoundingClientRect()
+  const elementPos = cursor.element.getBoundingClientRect();
   return (
     <Popover
       open={!!cursor}
@@ -125,7 +118,7 @@ function CursorPopover({ cursor, setHover }) {
         horizontal: 'left',
       }}
     >
-      <div style={{color: COLORS.WHITE, background: cursor.user.color, padding: "7px 10px"}}>
+      <div style={{ color: COLORS.WHITE, background: cursor.user.color, padding: '7px 10px' }}>
         {cursor.user.username}
       </div>
     </Popover>

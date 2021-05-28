@@ -8,7 +8,8 @@ import COLORS from '../style/colors';
 import FONTS from '../style/fonts';
 
 export default function CustomDialog({
-  icon, title, children, onCancel, isOpen, onAction, actionText, contentStyle = {},
+  icon, title, children, onCancel,
+  isOpen, onAction, actionText, contentStyle = {}, buttonWidth = 150,
 }) {
   return (
     <Dialog
@@ -31,7 +32,11 @@ export default function CustomDialog({
         : (
           <DialogActions>
             <Button
-              style={{ ...mainStyle.OUTLINED_BUTTON_STYLE, color: COLORS.BUTTON_BLUE, width: 150 }}
+              style={{
+                ...mainStyle.OUTLINED_BUTTON_STYLE,
+                color: COLORS.BUTTON_BLUE,
+                width: buttonWidth,
+              }}
               onClick={onCancel}
               id="general_items_CustomDialog_Dialog_CancelButton"
             >
@@ -41,7 +46,7 @@ export default function CustomDialog({
               style={{
                 ...mainStyle.OUTLINED_BUTTON_STYLE,
                 color: COLORS.BUTTON_BLUE,
-                width: 150,
+                width: buttonWidth,
                 marginRight: 15,
               }}
               onClick={onAction}

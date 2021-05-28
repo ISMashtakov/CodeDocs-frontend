@@ -152,7 +152,7 @@ it('Settings good', async () => {
         </Provider>
       </CustomSnackbarProvider>, container,
     );
-    await sleep(500);
+    await sleep(100);
   });
 
   const settingsButton = document.getElementById('workspace_Header_SettingsButton');
@@ -181,7 +181,7 @@ it('Settings good', async () => {
 
   await act(async () => {
     fireEvent.change(textField, { target: { value: '' } });
-    await sleep(500);
+    await sleep(100);
     fireEvent.click(saveButton);
     await sleep(500);
   });
@@ -190,7 +190,7 @@ it('Settings good', async () => {
 
   await act(async () => {
     fireEvent.change(textField, { target: { value: 'new_filename' } });
-    await sleep(500);
+    await sleep(100);
     fireEvent.click(saveButton);
     await sleep(500);
   });

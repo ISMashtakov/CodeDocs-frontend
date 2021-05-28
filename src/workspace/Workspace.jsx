@@ -3,8 +3,6 @@ import { connect } from 'react-redux';
 import Box from '@material-ui/core/Box';
 import AceEditor from 'react-ace';
 import { useSnackbar } from 'notistack';
-import { MenuItem, Select } from '@material-ui/core';
-import { Scrollbars } from 'react-custom-scrollbars';
 
 import COLORS from '../style/colors';
 import textEditor from './textEditor';
@@ -26,71 +24,13 @@ import 'ace-builds/src-noconflict/snippets/javascript';
 import 'ace-builds/src-noconflict/ext-language_tools';
 
 // types
-import 'ace-builds/src-noconflict/theme-crimson_editor';
 import 'ace-builds/src-noconflict/theme-github';
-import 'ace-builds/src-noconflict/theme-ambiance';
-import 'ace-builds/src-noconflict/theme-dawn';
 import 'ace-builds/src-noconflict/theme-dracula';
-import 'ace-builds/src-noconflict/theme-dreamweaver';
-import 'ace-builds/src-noconflict/theme-eclipse';
-import 'ace-builds/src-noconflict/theme-gob';
-import 'ace-builds/src-noconflict/theme-gruvbox';
-import 'ace-builds/src-noconflict/theme-idle_fingers';
-import 'ace-builds/src-noconflict/theme-iplastic';
-
-import 'ace-builds/src-noconflict/theme-katzenmilch';
 import 'ace-builds/src-noconflict/theme-kr_theme';
 import 'ace-builds/src-noconflict/theme-kuroir';
-import 'ace-builds/src-noconflict/theme-merbivore';
-import 'ace-builds/src-noconflict/theme-merbivore_soft';
-import 'ace-builds/src-noconflict/theme-mono_industrial';
 import 'ace-builds/src-noconflict/theme-monokai';
-import 'ace-builds/src-noconflict/theme-nord_dark';
-import 'ace-builds/src-noconflict/theme-pastel_on_dark';
 import 'ace-builds/src-noconflict/theme-solarized_dark';
-import 'ace-builds/src-noconflict/theme-solarized_light';
-import 'ace-builds/src-noconflict/theme-sqlserver';
-import 'ace-builds/src-noconflict/theme-tomorrow';
-import 'ace-builds/src-noconflict/theme-tomorrow_night';
-import 'ace-builds/src-noconflict/theme-tomorrow_night_blue';
 import 'ace-builds/src-noconflict/theme-tomorrow_night_bright';
-import 'ace-builds/src-noconflict/theme-tomorrow_night_eighties';
-import 'ace-builds/src-noconflict/theme-twilight';
-import 'ace-builds/src-noconflict/theme-vibrant_ink';
-import 'ace-builds/src-noconflict/theme-xcode';
-
-const TYPES = [
-  'crimson_editor',
-  'dawn',
-  'dracula',
-  'dreamweaver',
-  'eclipse',
-  'github',
-  'gob',
-  'gruvbox',
-  'idle_fingers',
-  'iplastic',
-  'katzenmilch',
-  'kr_theme',
-  'kuroir',
-  'merbivore',
-  'merbivore_soft',
-  'mono_industrial',
-  'monokai',
-  'nord_dark',
-  'pastel_on_dark',
-  'solarized_dark',
-  'solarized_light',
-  'sqlserver',
-  'tomorrow',
-  'tomorrow_night',
-  'tomorrow_night_blue',
-  'tomorrow_night_bright',
-  'tomorrow_night_eighties',
-  'twilight',
-  'vibrant_ink',
-  'xcode',
-];
 
 const LANGUAGE_NAMES_MAP = {
   js: 'javascript',
@@ -166,12 +106,14 @@ const scrollbarStyle = `
 
 ::-webkit-scrollbar-button:single-button:vertical:increment:active {
     background-image
-.ace_scrollbar-h{margin: 0 2px}`
+}
+.ace_scrollbar-h{margin: 0 2px}`;
 
 let lastConsoleHeight = null;
-function Workspace({ consoleHeight, haveAccess, language }) {
+function Workspace({
+  consoleHeight, haveAccess, language, workspaceStyle,
+}) {
   const editorRef = React.createRef();
-  const [type, setType] = React.useState('crimson_editor');
   const { enqueueSnackbar } = useSnackbar();
 
   function onChange(newText) {
@@ -231,9 +173,7 @@ function Workspace({ consoleHeight, haveAccess, language }) {
     >
       <style>
         {`
-        .ace-crimson-editor .ace_keyword {
-          color: red;
-        }
+        ${workspaceStyle.style}
         ${getStyle()}
         ${scrollbarStyle}
       `}
@@ -241,7 +181,7 @@ function Workspace({ consoleHeight, haveAccess, language }) {
       <AceEditor
         ref={editorRef}
         mode={LANGUAGE_NAMES_MAP[language]}
-        theme={type}
+        theme={workspaceStyle.theme}
         value={textEditor.text}
         readOnly={!haveAccess}
         fontSize={22}
@@ -258,9 +198,6 @@ function Workspace({ consoleHeight, haveAccess, language }) {
         }}
       />
       <CursorPopover />
-      <Select value={type} onChange={(e) => setType(e.target.value)}>
-        {TYPES.map((i) => <MenuItem key={i} value={i}>{i}</MenuItem>)}
-      </Select>
     </Box>
   );
 }
@@ -282,6 +219,7 @@ function mapToState(state) {
     forUpdate: state.documentData.forUpdate,
     haveAccess,
     language,
+    workspaceStyle: state.documentData.workspaceStyle,
   };
 }
 export default connect(mapToState)(Workspace);

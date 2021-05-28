@@ -247,15 +247,17 @@ it('Sign up good', async () => {
   expect(fetch).toHaveBeenCalledTimes(1);
   expect(fetch.mock.calls[0][1].body).toEqual('username=test_username&email=test_email&password=test_password');
 
-  expect(document.body.innerHTML).toContain('Activation mail was sended!');
+  expect(document.body.innerHTML).toContain('Activation email was sended!');
 });
 
 it('login render good', () => {
   act(() => {
     render(
-      <Provider store={store}>
-        <SignPage isLogin />
-      </Provider>, container,
+      <CustomSnackbarProvider>
+        <Provider store={store}>
+          <SignPage isLogin />
+        </Provider>
+      </CustomSnackbarProvider>, container,
     );
   });
 
@@ -270,9 +272,11 @@ it('login bad', async () => {
   const fetch = jest.spyOn(global, 'fetch').mockImplementation(getFetchWithJsonParams({}, 401));
   act(() => {
     render(
-      <Provider store={store}>
-        <SignPage isLogin />
-      </Provider>, container,
+      <CustomSnackbarProvider>
+        <Provider store={store}>
+          <SignPage isLogin />
+        </Provider>
+      </CustomSnackbarProvider>, container,
     );
   });
 
@@ -286,7 +290,7 @@ it('login bad', async () => {
   expect(fetch).toBeCalledTimes(1);
 
   const tab = document.getElementById('sign_SignPage_LogInTab_div');
-  expect(tab.innerHTML).toContain('Username or login is incorrect');
+  expect(tab.innerHTML).toContain('Username or password is incorrect');
 });
 
 it('login good', async () => {
@@ -295,9 +299,11 @@ it('login good', async () => {
 
   act(() => {
     render(
-      <Provider store={store}>
-        <SignPage isLogin />
-      </Provider>, container,
+      <CustomSnackbarProvider>
+        <Provider store={store}>
+          <SignPage isLogin />
+        </Provider>
+      </CustomSnackbarProvider>, container,
     );
   });
 

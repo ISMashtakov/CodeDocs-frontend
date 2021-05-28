@@ -15,8 +15,8 @@ export const CONFIRM_RESET_PASSWORD_URL = `${MAIN_AUTH_URL}/users/reset_password
 
 const PAGE_AFTER_LOGIN_IN_LOCAL_STORAGE = 'PAGE_AFTER_LOGIN';
 
-export function toLogin(savePage=true) {
-  if(savePage){
+export function toLogin(savePage = true) {
+  if (savePage) {
     localStorage.setItem(PAGE_AFTER_LOGIN_IN_LOCAL_STORAGE, JSON.stringify({
       pathname: window.location.pathname,
       search: window.location.search,
@@ -155,7 +155,7 @@ class AuthApi {
 
   async resetPassword(email) {
     const params = {
-      email
+      email,
     };
     try {
       const result = await post(RESET_PASSWORD_URL, params);
@@ -177,7 +177,7 @@ class AuthApi {
       uid,
       token,
       new_password: password,
-      re_new_password: rePassword
+      re_new_password: rePassword,
     };
     try {
       const result = await post(CONFIRM_RESET_PASSWORD_URL, params);
@@ -187,10 +187,10 @@ class AuthApi {
         case 400:
           return { ...(await result.json()), isGood: false };
         default:
-          return { isGood: false};
+          return { isGood: false };
       }
     } catch (err) {
-      return { isGood: false};
+      return { isGood: false };
     }
   }
 }

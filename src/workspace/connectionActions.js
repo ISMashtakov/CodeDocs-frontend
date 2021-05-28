@@ -74,3 +74,18 @@ export function sendRunFile() {
   });
   connection.send(data);
 }
+
+export function sendStopFile() {
+  const data = JSON.stringify({
+    type: 'stop_file',
+  });
+  connection.send(data);
+}
+
+export function sendInput(text) {
+  const data = JSON.stringify({
+    type: 'file_input',
+    file_input: text,
+  });
+  connection.send(data);
+}

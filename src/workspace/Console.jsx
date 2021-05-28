@@ -1,12 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Box from '@material-ui/core/Box';
+import Input from '@material-ui/core/Input';
 
 import COLORS from '../style/colors';
 import FONTS from '../style/fonts';
 import { setConsoleHeightAction, consoleDoubleClickAction } from './actions';
+import { sendInput } from './connectionActions';
+import { CONSOLE_HEADER_HEIGHT } from '../constants';
 
-export const CONSOLE_HEADER_HEIGHT = 40;
 export const CONSOLE_BOTTOM_SPACE = 0;
 export const CONSOLE_TOP_SPACE = 39;
 
@@ -18,8 +20,15 @@ let startConsoleHeight = 0;
 function Console({
   consoleHeight, text, setConsoleHeight, consoleDoubleClick,
 }) {
+  const [inputText, setInputText] = React.useState('');
+
   let onMouseMove = null;
   let onMouseUp = null;
+
+  function handlerEnter() {
+    sendInput(inputText);
+    setInputText('');
+  }
 
   function onMouseDown(e) {
     if (e.button !== 0) return;
@@ -81,9 +90,19 @@ function Console({
         }}
         overflow="auto"
       >
-        <pre style={{ margin: 0 }}>
-          {text.filter(i=>i !== undefined).join("")}
-        </pre>
+        <div style={{ marginLeft: 10 }}>
+          <pre style={{ margin: 0 }}>
+            {text.filter((i) => i !== undefined).join('')}
+          </pre>
+          <Input
+            fullWidth
+            disableUnderline
+            startAdornment={<span style={{ marginRight: 5 }}>{'>'}</span>}
+            onChange={(event) => setInputText(event.target.value)}
+            value={inputText}
+            onKeyDown={(e) => { if (e.key === 'Enter') handlerEnter(); }}
+          />
+        </div>
       </Box>
     </div>
   );
