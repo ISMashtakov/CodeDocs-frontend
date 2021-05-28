@@ -91,7 +91,7 @@ function Console({
         overflow="auto"
       >
         <div style={{ marginLeft: 10 }}>
-          <pre style={{ margin: 0 }}>
+          <pre style={{ ...FONTS.BODY, margin: 0 }}>
             {text.filter((i) => i !== undefined).join('')}
           </pre>
           <Input
