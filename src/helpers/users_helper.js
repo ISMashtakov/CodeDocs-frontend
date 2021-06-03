@@ -111,7 +111,7 @@ class UsersApi {
       switch (result.status) {
         case 400:
           return { reason: await result.json(), isGood: false };
-        case 200:
+        case 201:
           return { id: (await result.json()).id, isGood: true };
         default:
           return { reason: [], isGood: false };
@@ -130,7 +130,7 @@ class UsersApi {
       switch (result.status) {
         case 400:
           return { reason: await result.json(), isGood: false };
-        case 200:
+        case 204:
           return { isGood: true };
         default:
           return { reason: [], isGood: false };
@@ -149,7 +149,7 @@ class UsersApi {
       switch (result.status) {
         case 400:
           return { reason: await result.json(), isGood: false };
-        case 200:
+        case 204:
           return { isGood: true };
         default:
           return { reason: [], isGood: false };

@@ -185,7 +185,7 @@ it('AccountPage render files', async () => {
 it('AccountPage delete file', async () => {
   const fetch = jest.spyOn(global, 'fetch').mockImplementation(queueMocks([
     getFetchWithJsonParams(FILES_LIST),
-    getFetchWithJsonParams({}, 200),
+    getFetchWithJsonParams({}, 204),
   ]));
 
   await act(async () => {
@@ -227,7 +227,7 @@ it('AccountPage delete file', async () => {
 it('AccountPage create file', async () => {
   const fetch = jest.spyOn(global, 'fetch').mockImplementation(queueMocks([
     getFetchWithJsonParams(FILES_LIST),
-    getFetchWithJsonParams({ id: 15 }, 200),
+    getFetchWithJsonParams({ id: 15 }, 201),
   ]));
 
   await act(async () => {

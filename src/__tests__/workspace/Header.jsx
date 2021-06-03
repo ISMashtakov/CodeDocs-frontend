@@ -130,7 +130,7 @@ it('New file good', async () => {
     fireEvent.change(textField, { target: { value: 'new_filename' } });
     await sleep(500);
     fireEvent.click(saveButton);
-    await sleep(500);
+    await sleep(1000);
   });
 
   expect(fetch).toHaveBeenCalledTimes(2);
